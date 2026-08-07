@@ -21,8 +21,9 @@
 
 > **Nota (descarga desde GitHub):** el repositorio solo contiene el código de la aplicación.
 > Los componentes portables (`php74`, `php82`, `python311`, `python38`, `redist`) se descargan automáticamente al primer arranque mediante `Configurar_Entorno.bat`.
-> Si la descarga automática falla, ejecute `Configurar_Entorno.bat` manualmente o descargue
-> `AS400_Portable_Runtime_x64.zip` desde el Release `runtime-v1` y descomprimalo en la misma carpeta.
+> Si el acceso a GitHub está restringido o la descarga falla, `Configurar_Entorno.bat` reintenta con **fuentes oficiales** (php.net, python.org y Microsoft) vía `Instalar_Runtime_Oficial.ps1`.
+> Si la descarga automática falla por completo, descargue
+> `AS400_Portable_Runtime_x64.zip` desde el Release `runtime-v1` y descomprímalo en la misma carpeta.
 
 ## 📖 Documentación para el Usuario
 - [Manual de Usuario - Versión WEB](MANUAL_USUARIO_WEB.md)

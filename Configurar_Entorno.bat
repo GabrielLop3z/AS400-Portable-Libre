@@ -22,6 +22,8 @@ echo  [#] NO SE DETECTARON LOS COMPONENTES PORTABLES (php74,
 echo      php82, python311 y redist).
 echo  [#] LA PRIMERA EJECUCION DESCARGARA E INSTALARA
 echo      AUTOMATICAMENTE PHP + PYTHON + VC REDIST (115 MB).
+echo  [#] SE INTENTARA PRIMERO CON GITHUB; SI NO ES ACCESIBLE,
+echo      SE USARAN FUENTES OFICIALES (php.net / python.org / MS).
 echo  [#] PUEDE TARDAR UNOS MINUTOS SEGUN SU CONEXION...
 echo.
 
@@ -30,7 +32,7 @@ if exist "%RUNTIME_ZIP%" del "%RUNTIME_ZIP%" >nul 2>&1
 for %%D in (php74 php82 python311 python38 redist) do if exist "%%D" rmdir /s /q "%%D" 2>nul
 
 :: --- DESCARGAR (curl si existe, si no PowerShell/WebClient) ---
-echo  [$] DESCARGANDO COMPONENTES...
+echo  [$] DESCARGANDO COMPONENTES (GitHub)...
 where curl.exe >nul 2>&1
 if !errorlevel! equ 0 (
     curl.exe -sL --retry 3 --connect-timeout 30 -o "%RUNTIME_ZIP%" "%RUNTIME_URL%"
@@ -39,15 +41,9 @@ if !errorlevel! equ 0 (
 )
 
 if not exist "%RUNTIME_ZIP%" (
-    color 0c
     echo.
-    echo  [!] ERROR: NO SE PUDO DESCARGAR LOS COMPONENTES.
-    echo  [!] VERIFIQUE SU CONEXION A INTERNET Y VUELVA A EJECUTAR.
-    echo  [!] DESCARGA MANUAL: %RUNTIME_URL%
-    echo      Descomprimala en esta misma carpeta y vuelva a iniciar.
-    echo.
-    pause
-    exit /b 1
+    echo  [^^!] GITHUB NO ACCESIBLE O DESCARGA INCOMPLETA.
+    goto :fallback
 )
 
 :: --- EXTRAER ---
@@ -55,7 +51,6 @@ echo  [$] EXTRAYENDO COMPONENTES...
 powershell -ExecutionPolicy Bypass -Command "Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory('%RUNTIME_ZIP%','%ROOT%')"
 if exist "%RUNTIME_ZIP%" del "%RUNTIME_ZIP%" >nul 2>&1
 
-:: --- VERIFICAR ---
 if exist "php82\php.exe" if exist "php74\php.exe" if exist "python311\python.exe" if exist "redist\vc_redist.x64.exe" (
     color 0a
     echo.
@@ -64,10 +59,26 @@ if exist "php82\php.exe" if exist "php74\php.exe" if exist "python311\python.exe
     exit /b 0
 )
 
+:: --- FALLBACK: FUENTES OFICIALES (GitHub bloqueado/incompleto) ---
+:fallback
+echo.
+echo  [$] FALLBACK: DESCARGANDO DESDE FUENTES OFICIALES
+echo      (windows.php.net, python.org, Microsoft)...
+powershell -ExecutionPolicy Bypass -File "%ROOT%Instalar_Runtime_Oficial.ps1"
+if !errorlevel! equ 0 (
+    color 0a
+    echo.
+    echo  [+] ENTORNO PORTABLE INSTALADO CORRECTAMENTE.
+    echo      Fuentes oficiales utilizadas.
+    echo.
+    exit /b 0
+)
+
 color 0c
 echo.
-echo  [!] ERROR: LA EXTRACCION NO COMPLETO LOS COMPONENTES.
-echo  [!] DESCARGA MANUAL: %RUNTIME_URL%
+echo  [^^!] ERROR: NO SE PUDO DESCARGAR LOS COMPONENTES.
+echo  [^^!] VERIFIQUE SU CONEXION A INTERNET Y VUELVA A EJECUTAR.
+echo  [^^!] DESCARGA MANUAL: %RUNTIME_URL%
 echo      Descomprimala en esta misma carpeta y vuelva a iniciar.
 echo.
 pause

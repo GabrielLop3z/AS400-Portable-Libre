@@ -1,5 +1,5 @@
 {
-    "version": "1.8.14",
+    "version": "1.8.15",
     "last_update": "2026-08-07",
-    "changelog": "Primera ejecuci\u00f3n autosuficiente: al descargar solo el c\u00f3digo desde GitHub, la aplicaci\u00f3n detecta que faltan los componentes portables (PHP, Python y VC Redist) y los descarga/instala autom\u00e1ticamente desde el release 'runtime-v1' del repositorio (115 MB, una sola vez). Nuevo archivo: Configurar_Entorno.bat; los lanzadores Iniciar_Servidor.bat, DEBUG_LANZADOR.bat y Simular_Win7_en_Win10.bat se integran con \u00e9l y la documentaci\u00f3n (README.md, MANUAL_INSTALACION.md) se actualiz\u00f3."
+    "changelog": "Robustez en el auto-aprovisionamiento y correcci\u00f3n de temas en descarga fresca: (1) Si GitHub no es accesible o la descarga del runtime falla, Configurar_Entorno.bat reintenta autom\u00e1ticamente con fuentes oficiales (windows.php.net, python.org y Microsoft) mediante el nuevo Instalar_Runtime_Oficial.ps1, que tambi\u00e9n genera los php.ini de f\u00e1brica (extension_dir relativo + extensiones curl/ftp/fileinfo/gd/mbstring/openssl/zip). (2) Se corrige que en una descarga nueva de solo c\u00f3digo no aparec\u00edan los temas: index.php ahora inicializa autom\u00e1ticamente config/themes.json desde config/themes.default.json en el primer arranque, de modo que los temas 'negro', 'rojo' y 'claro' quedan disponibles de inmediato."
 }

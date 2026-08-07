@@ -20,8 +20,8 @@ if ($requestLogout) {
 }
 
 $isLoggedIn = isset($_SESSION['as400_session']);
-$assetVer = '1.8.14';
-$appVersion = '1.8.14';
+$assetVer = '1.8.15';
+$appVersion = '1.8.15';
 $appVersionFile = __DIR__ . '/version.json';
 if (file_exists($appVersionFile)) {
     $appVersionData = json_decode(file_get_contents($appVersionFile), true);
@@ -31,6 +31,14 @@ if (file_exists($appVersionFile)) {
 // --- TEMAS Y PLANTILLAS PDF (configuracion centralizada en /config) ---
 $themesData = [];
 $themesFile = __DIR__ . '/config/themes.json';
+if (!file_exists($themesFile)) {
+    // Primera ejecucion / descarga fresca: inicializar con los temas de fabrica.
+    $themesDefault = __DIR__ . '/config/themes.default.json';
+    if (file_exists($themesDefault)) {
+        if (!is_dir(__DIR__ . '/config')) mkdir(__DIR__ . '/config', 0777, true);
+        @copy($themesDefault, $themesFile);
+    }
+}
 if (file_exists($themesFile)) {
     $themesData = json_decode(file_get_contents($themesFile), true) ?: [];
 }

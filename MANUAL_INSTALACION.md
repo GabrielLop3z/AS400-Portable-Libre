@@ -21,7 +21,7 @@ El sistema realizará los siguientes pasos automáticamente:
 3.  **Icono Premium:** Se configurará automáticamente el icono de portapapeles azul.
 4.  **Autodiagnóstico:** Se iniciará el motor PHP y la aplicación se abrirá sola en tu navegador.
 
-> Si la descarga automática no se completa, ejecuta manualmente **`Configurar_Entorno.bat`** (también se encarga de descargar e instalar los componentes), o descarga `AS400_Portable_Runtime_x64.zip` desde el Release `runtime-v1` del repositorio y descomprímelo en la misma carpeta que `Iniciar_Servidor.bat`.
+> Si la descarga automática no se completa, **`Configurar_Entorno.bat`** reintenta automáticamente desde **fuentes oficiales** (php.net, python.org y Microsoft); si tampoco lo logra, descarga manualmente `AS400_Portable_Runtime_x64.zip` desde el Release `runtime-v1` del repositorio y descomprímelo en la misma carpeta que `Iniciar_Servidor.bat`.
 
 ---
 
