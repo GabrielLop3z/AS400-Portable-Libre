@@ -2,6 +2,7 @@
 if (PHP_VERSION_ID < 80000 && file_exists(__DIR__ . '/vendor74/autoload.php')) { require_once __DIR__ . '/vendor74/autoload.php'; } else { require_once __DIR__ . '/vendor/autoload.php'; }
 
 use App\Parser;
+use App\Updater;
 
 error_reporting(0);
 ini_set('display_errors', 0);
@@ -12,7 +13,7 @@ set_time_limit(300);
 $input = json_decode(file_get_contents('php://input'), true);
 $action = $_POST['action'] ?? $input['action'] ?? null;
 
-if (in_array($action, ['list_remote', 'fetch_remote', 'save_template', 'load_templates', 'delete_template', 'rename_template', 'save_theme', 'reset_theme', 'spool_action'], true)) {
+if (in_array($action, ['list_remote', 'fetch_remote', 'save_template', 'load_templates', 'delete_template', 'rename_template', 'save_theme', 'reset_theme', 'spool_action', 'updater_status', 'check_update', 'apply_update', 'rollback_update', 'save_updater_config'], true)) {
     session_start();
 }
 
@@ -466,45 +467,38 @@ try {
         $output = shell_exec($cmd . " 2>&1");
         echo trim($output);
 
+    } elseif ($action === 'updater_status') {
+        $updater = new Updater();
+        echo json_encode(array_merge(['success' => true], $updater->getStatus()));
+
     } elseif ($action === 'check_update') {
-        $server = $input['server'] ?? '';
-        if (!$server) throw new Exception('Update server not configured.');
-        
-        $localVersionFile = __DIR__ . '/version.json';
-        $localVersion = file_exists($localVersionFile) ? json_decode(file_get_contents($localVersionFile), true)['version'] : '1.0.0';
-        
-        $remoteUrl = "http://$server/AS400/version.json";
-        $remoteRaw = @file_get_contents($remoteUrl);
-        if (!$remoteRaw) throw new Exception("No se pudo conectar al servidor de actualizaciones ($server)");
-        
-        $remoteVersionData = json_decode($remoteRaw, true);
-        $remoteVersion = $remoteVersionData['version'];
+        $updater = new Updater();
+        echo json_encode($updater->checkForUpdates());
 
-        echo json_encode([
-            'success' => true,
-            'new_version' => version_compare($remoteVersion, $localVersion, '>'),
-            'version' => $remoteVersion,
-            'local' => $localVersion
-        ]);
-
-    } elseif ($action === 'perform_update') {
-        $server = $input['server'] ?? '';
-        if (!$server) throw new Exception('Update server not configured.');
-
-        // Lista de archivos vitales a actualizar
-        $files = ['index.php', 'process.php', 'src/spool_explorer.py', 'version.json'];
-        
-        foreach ($files as $file) {
-            $remoteFile = "http://$server/AS400/$file";
-            $localPath = __DIR__ . '/' . $file;
-            $data = @file_get_contents($remoteFile);
-            if ($data) {
-                file_put_contents($localPath, $data);
+    } elseif ($action === 'apply_update' || $action === 'rollback_update' || $action === 'save_updater_config') {
+        if (empty($session)) {
+            throw new Exception('Sesión no válida. Inicie sesión de nuevo.');
+        }
+        if (!empty($gatekeeperHash)) {
+            $apwd = $input['password'] ?? $_POST['password'] ?? null;
+            if (!$apwd || !password_verify($apwd, $gatekeeperHash)) {
+                echo json_encode(['success' => false, 'message' => 'Acceso de administrador inválido.']);
+                exit;
             }
         }
-        echo json_encode(['success' => true]);
+        $updater = new Updater();
+        if ($action === 'apply_update') {
+            echo json_encode($updater->apply());
+        } elseif ($action === 'rollback_update') {
+            echo json_encode($updater->rollback());
+        } else {
+            $repo = $input['repo'] ?? $_POST['repo'] ?? '';
+            $branch = $input['branch'] ?? $_POST['branch'] ?? 'main';
+            $autoCheck = (($input['auto_check'] ?? $_POST['auto_check'] ?? null) === false) ? false : true;
+            echo json_encode(['success' => true, 'config' => $updater->updateConfig($repo, $branch, $autoCheck)]);
+        }
+        exit;
 
-    } elseif ($action === 'export') {
         $type = $input['type'] ?? 'excel';
         $data = $input['data'] ?? null;
         if (!$data) throw new Exception('No data to export.');

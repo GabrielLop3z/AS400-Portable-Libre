@@ -21,6 +21,12 @@ if ($requestLogout) {
 
 $isLoggedIn = isset($_SESSION['as400_session']);
 $assetVer = '1.8.10';
+$appVersion = '1.8.10';
+$appVersionFile = __DIR__ . '/version.json';
+if (file_exists($appVersionFile)) {
+    $appVersionData = json_decode(file_get_contents($appVersionFile), true);
+    $appVersion = $appVersionData['version'] ?? $appVersion;
+}
 
 // --- TEMAS Y PLANTILLAS PDF (configuracion centralizada en /config) ---
 $themesData = [];
@@ -942,7 +948,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
 
         <!-- Pie -->
         <div class="absolute bottom-6 left-0 w-full text-center z-10">
-            <p class="text-base text-[var(--text-muted)] tracking-[0.2em] uppercase opacity-70">Spool <span class="font-bold text-[var(--accent)]">v1.8.10</span> &middot; GLR</p>
+            <p class="text-base text-[var(--text-muted)] tracking-[0.2em] uppercase opacity-70">Spool <span class="font-bold text-[var(--accent)]">v<?= htmlspecialchars($appVersion) ?></span> &middot; GLR</p>
         </div>
     </div>
 <?php else: ?>
@@ -1105,6 +1111,10 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                     </button>
                 </div>
+                <button onclick="openUpdater()" class="mt-3 w-full h-11 flex items-center justify-center gap-2 text-[15px] bg-green-500/10 text-green-400 border border-green-500/30 rounded-xl hover:bg-green-500 hover:text-white transition-all premium-hover uppercase tracking-widest" title="Buscar e instalar mejoras desde GitHub">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    Actualizar
+                </button>
             </div>
             
             <div class="pt-4 space-y-3">
@@ -1122,7 +1132,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
         <div class="p-8 text-center border-t border-white/5 flex flex-col items-center bg-black/20">
             <div onclick="triggerEgg()" class="signature-glow w-12 h-12 border border-white/10 bg-black/40 rounded-2xl flex items-center justify-center text-accent font-bold text-sm mb-4 shadow-accent cursor-pointer premium-hover active:scale-95 transition-all tracking-normal">&lt;/&gt;</div>
             <p class="signature-premium text-[15px] tracking-[0.5em] uppercase">&lt;GLR\&gt;</p>
-            <p class="text-[15px] text-gray-600 font-mono mt-2 font-bold tracking-tight uppercase">Spool v1.8.10</p>
+            <p class="text-[15px] text-gray-600 font-mono mt-2 font-bold tracking-tight uppercase">Spool v<?= htmlspecialchars($appVersion) ?></p>
         </div>
     </aside>
 
@@ -4472,97 +4482,220 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
         }
 
         // --- SISTEMA DE ACTUALIZACION INTELIGENTE ---
-        async function showUpdateConfig() {
-            const currentIp = localStorage.getItem('glr_update_server') || window.location.hostname;
-            const { value: ip } = await Swal.fire({
-                title: 'Servidor Maestro',
-                text: 'Escribe la IP o URL donde alojarás las actualizaciones futuras:',
-                input: 'text',
-                inputValue: currentIp,
+        let updaterAutoCheck = true;
+
+        function openUpdater() {
+            document.getElementById('updater-modal').classList.remove('hidden');
+            document.getElementById('updater-modal').classList.add('animate-fade-in-up');
+            loadUpdaterStatus();
+        }
+
+        function closeUpdater() {
+            document.getElementById('updater-modal').classList.add('hidden');
+        }
+
+        async function updaterFetch(action, extra = {}) {
+            const res = await fetch('process.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(Object.assign({ action }, extra))
+            });
+            return await res.json();
+        }
+
+        async function updaterAdminPayload() {
+            const ck = await updaterFetch('check_gatekeeper');
+            if (!ck || !ck.required) return {};
+            const pwd = await Swal.fire({
+                title: 'Acceso de Administrador',
+                text: 'Ingrese la contraseña del Gatekeeper:',
+                input: 'password',
+                inputAttributes: { autocomplete: 'current-password' },
                 background: 'var(--bg-panel)', color: 'var(--text-main)',
-                confirmButtonColor: 'var(--accent)', confirmButtonText: 'Guardar',
+                confirmButtonColor: 'var(--accent)', confirmButtonText: 'Autorizar',
                 showCancelButton: true
             });
-            if (ip) {
-                localStorage.setItem('glr_update_server', ip);
-                Swal.fire({ icon: 'success', title: 'Configurado', text: 'Ahora buscaré mejoras en ' + ip, background: 'var(--bg-panel)', color: 'var(--text-main)' });
+            if (!pwd.isConfirmed || !pwd.value) return null;
+            return { password: pwd.value };
+        }
+
+        async function loadUpdaterStatus() {
+            try {
+                const data = await updaterFetch('updater_status');
+                if (!data.success) {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.message, background: 'var(--bg-panel)', color: 'var(--text-main)' });
+                    return;
+                }
+                document.getElementById('upd-local').textContent = data.local || '—';
+                document.getElementById('upd-remote').textContent = data.remote || '—';
+                document.getElementById('upd-last-check').textContent = data.last_check ? new Date(data.last_check).toLocaleString() : 'Nunca';
+                document.getElementById('upd-last-applied').textContent = data.last_applied ? (data.last_applied_version ? 'v' + data.last_applied_version + ' — ' : '') + new Date(data.last_applied).toLocaleString() : 'Ninguna';
+                document.getElementById('upd-changelog').textContent = data.changelog || 'Sin notas disponibles.';
+                document.getElementById('upd-repo').value = data.repo || '';
+                document.getElementById('upd-branch').value = data.branch || 'main';
+                updaterAutoCheck = !!data.auto_check;
+                renderUpdaterAutoToggle();
+                const applyBtn = document.getElementById('upd-apply-btn');
+                applyBtn.style.opacity = data.available ? '1' : '0.35';
+                applyBtn.style.pointerEvents = data.available ? 'auto' : 'none';
+                applyBtn.textContent = data.available ? ('ACTUALIZAR A v' + data.remote) : 'ACTUALIZAR';
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'Error', text: e.message, background: 'var(--bg-panel)', color: 'var(--text-main)' });
             }
         }
 
-        async function checkUpdate() {
-            const server = localStorage.getItem('glr_update_server');
-            if (!server) return showUpdateConfig();
+        function renderUpdaterAutoToggle() {
+            const knob = document.getElementById('upd-auto-knob');
+            const btn = document.getElementById('upd-auto-toggle');
+            if (updaterAutoCheck) {
+                btn.classList.add('bg-accent', 'border-accent/40');
+                knob.classList.remove('bg-gray-300'); knob.classList.add('bg-white'); knob.style.transform = 'translateX(24px)';
+            } else {
+                btn.classList.remove('bg-accent', 'border-accent/40');
+                knob.classList.add('bg-gray-300'); knob.classList.remove('bg-white'); knob.style.transform = 'translateX(4px)';
+            }
+        }
 
+        function toggleUpdaterAuto() {
+            updaterAutoCheck = !updaterAutoCheck;
+            renderUpdaterAutoToggle();
+        }
+
+        async function runUpdateCheck() {
             Swal.fire({
                 title: 'Buscando Mejoras...',
-                text: 'Conectando con el servidor maestro...',
+                text: 'Consultando GitHub...',
                 allowOutsideClick: false,
                 background: 'var(--bg-panel)', color: 'var(--text-main)',
                 didOpen: () => { Swal.showLoading() }
             });
-
             try {
-                const res = await fetch('process.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'check_update', server: server })
-                });
-                const data = await res.json();
-                
-                if (data.success) {
-                    if (data.new_version) {
-                        const confirm = await Swal.fire({
-                            title: '¡Nueva Versión v' + data.version + '!',
-                            text: 'Se han encontrado mejoras. ¿Deseas actualizar el código ahora?',
-                            icon: 'info',
-                            showCancelButton: true,
-                            confirmButtonText: '¡Sí, Actualizar!',
-                            cancelButtonText: 'Después',
-                            background: 'var(--bg-panel)', color: 'var(--text-main)',
-                            confirmButtonColor: 'var(--accent)'
-                        });
-
-                        if (confirm.isConfirmed) {
-                            performUpdate(server);
-                        }
-                    } else {
-                        Swal.fire({ icon: 'success', title: 'Actualizado', text: 'Ya tienes la última versión (v1.6.0).', background: 'var(--bg-panel)', color: 'var(--text-main)' });
-                    }
-                } else {
+                const data = await updaterFetch('check_update');
+                Swal.close();
+                if (!data.success) {
                     Swal.fire({ icon: 'error', title: 'Fallo', text: data.message, background: 'var(--bg-panel)', color: 'var(--text-main)' });
+                    return;
+                }
+                await loadUpdaterStatus();
+                if (data.available && data.release_ready) {
+                    const c = await Swal.fire({
+                        title: '¡Versión v' + data.remote + ' disponible!',
+                        html: '<p style="font-size:14px;line-height:1.6;max-height:200px;overflow-y:auto;white-space:pre-wrap">' + (data.changelog ? data.changelog : 'Mejoras y correcciones.') + '</p>',
+                        icon: 'info', showCancelButton: true, confirmButtonText: 'Actualizar ahora', cancelButtonText: 'Después',
+                        background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: 'var(--accent)'
+                    });
+                    if (c.isConfirmed) runApplyUpdate();
+                } else if (data.available && !data.release_ready) {
+                    Swal.fire({ icon: 'info', title: 'Publicación en preparación', text: 'La versión v' + data.remote + ' aún no tiene paquete de actualización disponible.', background: 'var(--bg-panel)', color: 'var(--text-main)' });
+                } else {
+                    Swal.fire({ icon: 'success', title: 'Actualizado', text: 'Ya tienes la última versión (v' + data.local + ').', background: 'var(--bg-panel)', color: 'var(--text-main)' });
                 }
             } catch (e) {
-                Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo contactar al servidor: ' + e.message, background: 'var(--bg-panel)', color: 'var(--text-main)' });
+                Swal.close();
+                Swal.fire({ icon: 'error', title: 'Error', text: e.message, background: 'var(--bg-panel)', color: 'var(--text-main)' });
             }
         }
 
-
-        async function performUpdate(server) {
+        async function runApplyUpdate() {
+            const ap = await updaterAdminPayload();
+            if (ap === null) return;
+            const confirm = await Swal.fire({
+                title: '¿Actualizar ahora?',
+                text: 'El código se respaldará en backups/ antes de aplicar. Se recomienda cerrar otras pestañas.',
+                icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí, actualizar', cancelButtonText: 'Cancelar',
+                background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: 'var(--accent)'
+            });
+            if (!confirm.isConfirmed) return;
             Swal.fire({
-                title: 'Descargando...',
-                text: 'Actualizando archivos de motor y lógica...',
+                title: 'Actualizando...',
+                text: 'Descargando y aplicando el paquete...',
                 allowOutsideClick: false,
                 background: 'var(--bg-panel)', color: 'var(--text-main)',
                 didOpen: () => { Swal.showLoading() }
             });
-
             try {
-                const res = await fetch('process.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'perform_update', server: server })
-                });
-                const data = await res.json();
+                const data = await updaterFetch('apply_update', ap);
+                Swal.close();
                 if (data.success) {
-                    await Swal.fire({ icon: 'success', title: '¡Éxito!', text: 'Aplicación actualizada. Reiniciando...', background: 'var(--bg-panel)', color: 'var(--text-main)' });
+                    await Swal.fire({ icon: 'success', title: '¡Listo!', text: data.message, background: 'var(--bg-panel)', color: 'var(--text-main)' });
                     window.location.reload();
                 } else {
                     Swal.fire({ icon: 'error', title: 'Error', text: data.message, background: 'var(--bg-panel)', color: 'var(--text-main)' });
                 }
             } catch (e) {
-                Swal.fire({ icon: 'error', title: 'Error de Red', text: e.message, background: 'var(--bg-panel)', color: 'var(--text-main)' });
+                Swal.close();
+                Swal.fire({ icon: 'error', title: 'Error', text: e.message, background: 'var(--bg-panel)', color: 'var(--text-main)' });
             }
         }
+
+        async function runRollbackUpdate() {
+            const ap = await updaterAdminPayload();
+            if (ap === null) return;
+            const confirm = await Swal.fire({
+                title: '¿Revertir la última actualización?',
+                text: 'Se restaurará el código anterior desde el respaldo más reciente.',
+                icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí, revertir', cancelButtonText: 'Cancelar',
+                background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: 'var(--accent)'
+            });
+            if (!confirm.isConfirmed) return;
+            Swal.fire({ title: 'Revertiendo...', allowOutsideClick: false, background: 'var(--bg-panel)', color: 'var(--text-main)', didOpen: () => { Swal.showLoading() } });
+            try {
+                const data = await updaterFetch('rollback_update', ap);
+                Swal.close();
+                if (data.success) {
+                    await Swal.fire({ icon: 'success', title: 'Reversión completada', text: data.message, background: 'var(--bg-panel)', color: 'var(--text-main)' });
+                    window.location.reload();
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.message, background: 'var(--bg-panel)', color: 'var(--text-main)' });
+                }
+            } catch (e) {
+                Swal.close();
+                Swal.fire({ icon: 'error', title: 'Error', text: e.message, background: 'var(--bg-panel)', color: 'var(--text-main)' });
+            }
+        }
+
+        async function saveUpdaterConfig() {
+            const ap = await updaterAdminPayload();
+            if (ap === null) return;
+            const repo = document.getElementById('upd-repo').value.trim();
+            const branch = document.getElementById('upd-branch').value.trim() || 'main';
+            if (!/^[A-Za-z0-9_.\-]+\/[A-Za-z0-9_.\-]+$/.test(repo)) {
+                Swal.fire({ icon: 'error', title: 'Repositorio inválido', text: 'Formato: usuario/repositorio', background: 'var(--bg-panel)', color: 'var(--text-main)' });
+                return;
+            }
+            Swal.fire({ title: 'Guardando...', allowOutsideClick: false, background: 'var(--bg-panel)', color: 'var(--text-main)', didOpen: () => { Swal.showLoading() } });
+            try {
+                const data = await updaterFetch('save_updater_config', Object.assign({ repo, branch, auto_check: updaterAutoCheck }, ap));
+                Swal.close();
+                if (data.success) {
+                    Swal.fire({ icon: 'success', title: 'Configuración guardada', background: 'var(--bg-panel)', color: 'var(--text-main)' });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.message, background: 'var(--bg-panel)', color: 'var(--text-main)' });
+                }
+            } catch (e) {
+                Swal.close();
+                Swal.fire({ icon: 'error', title: 'Error', text: e.message, background: 'var(--bg-panel)', color: 'var(--text-main)' });
+            }
+        }
+
+        function autoCheckUpdates() {
+            updaterFetch('updater_status').then(s => {
+                if (!s.success || !s.auto_check) return;
+                const last = s.last_check ? new Date(s.last_check).getTime() : 0;
+                if (Date.now() - last < 24 * 3600 * 1000) return;
+                return updaterFetch('check_update').then(data => {
+                    if (data.success && data.available && data.release_ready) {
+                        Swal.fire({
+                            title: '¡Nueva versión v' + data.remote + ' disponible!',
+                            icon: 'info', showCancelButton: true, confirmButtonText: 'Ver', cancelButtonText: 'Después',
+                            background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: 'var(--accent)'
+                        }).then(r => { if (r.isConfirmed) openUpdater(); });
+                    }
+                });
+            }).catch(() => {});
+        }
+
+        autoCheckUpdates();
 
         function toggleExpandPreview() {
             const sidebar = document.getElementById('main-sidebar');
@@ -5394,6 +5527,82 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
                     <button onclick="saveTheme('save')" class="px-8 py-3 rounded-[1.5rem] text-[15px] font-black bg-accent text-black hover:bg-white transition-all shadow-accent uppercase tracking-widest">GUARDAR</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div id="updater-modal" class="hidden fixed inset-0 z-[140] bg-black/60 backdrop-blur-2xl flex items-center justify-center p-4">
+        <div class="bg-[var(--bg-panel)] border border-white/10 rounded-[2.5rem] w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-[0_32px_128px_rgba(0,0,0,0.9)] animate-fade-in-up">
+            <header class="p-8 border-b border-white/5 flex justify-between items-center bg-black/20">
+                <div class="flex items-center gap-5">
+                    <div class="w-14 h-14 bg-accent/10 border border-accent/20 rounded-2xl flex items-center justify-center shadow-accent">
+                        <svg class="w-7 h-7 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3 3m0 0l-3-3m3 3V8"></path></svg>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-white tracking-tighter">ACTUALIZACIONES</h2>
+                        <p class="text-gray-500 font-bold text-[13px] tracking-[0.3em] uppercase mt-1">Auto-Update vía GitHub</p>
+                    </div>
+                </div>
+                <button onclick="closeUpdater()" class="p-3 bg-white/5 border border-white/10 rounded-2xl text-gray-400 hover:text-white transition-all premium-hover">&times;</button>
+            </header>
+            
+            <main class="flex-1 overflow-y-auto custom-scroll p-8 space-y-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-black/30 border border-white/5 rounded-2xl p-5">
+                        <p class="text-[12px] font-bold text-gray-500 uppercase tracking-widest">Versión Local</p>
+                        <p id="upd-local" class="text-2xl font-black text-white mt-2 font-mono">—</p>
+                    </div>
+                    <div class="bg-black/30 border border-white/5 rounded-2xl p-5">
+                        <p class="text-[12px] font-bold text-gray-500 uppercase tracking-widest">Versión Remota</p>
+                        <p id="upd-remote" class="text-2xl font-black text-white mt-2 font-mono">—</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-black/20 border border-white/5 rounded-2xl p-5">
+                        <p class="text-[12px] font-bold text-gray-500 uppercase tracking-widest mb-2">Última Comprobación</p>
+                        <p id="upd-last-check" class="text-[15px] text-gray-400 font-mono">Nunca</p>
+                    </div>
+                    <div class="bg-black/20 border border-white/5 rounded-2xl p-5">
+                        <p class="text-[12px] font-bold text-gray-500 uppercase tracking-widest mb-2">Última Aplicada</p>
+                        <p id="upd-last-applied" class="text-[15px] text-gray-400 font-mono">Ninguna</p>
+                    </div>
+                </div>
+
+                <div class="bg-black/20 border border-white/5 rounded-2xl p-5">
+                    <p class="text-[12px] font-bold text-gray-500 uppercase tracking-widest mb-2">Notas de la Versión</p>
+                    <p id="upd-changelog" class="text-[15px] text-gray-300 leading-relaxed whitespace-pre-wrap">Sin datos.</p>
+                </div>
+
+                <div class="bg-black/20 border border-white/5 rounded-2xl p-5 space-y-4">
+                    <p class="text-[12px] font-bold text-gray-500 uppercase tracking-widest">Configuración del Repositorio</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-[12px] font-bold text-gray-500 uppercase tracking-widest">Repositorio (usuario/repo)</label>
+                            <input id="upd-repo" class="w-full bg-black/40 border border-white/10 text-[15px] font-bold text-white px-4 py-3 rounded-xl outline-none focus:border-accent/40" placeholder="Usuario/Repositorio">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[12px] font-bold text-gray-500 uppercase tracking-widest">Rama</label>
+                            <input id="upd-branch" class="w-full bg-black/40 border border-white/10 text-[15px] font-bold text-white px-4 py-3 rounded-xl outline-none focus:border-accent/40" placeholder="main">
+                        </div>
+                    </div>
+                    <label class="flex items-center gap-3 cursor-pointer select-none">
+                        <button id="upd-auto-toggle" onclick="toggleUpdaterAuto()" class="w-12 h-6 bg-white/10 border border-white/10 rounded-full relative transition-all duration-300">
+                            <div id="upd-auto-knob" class="absolute top-1 left-1 w-4 h-4 bg-gray-300 rounded-full transition-all duration-300"></div>
+                        </button>
+                        <span class="text-[15px] font-bold text-gray-300">Comprobar automáticamente (cada 24 h)</span>
+                    </label>
+                </div>
+            </main>
+            
+            <footer class="p-6 border-t border-white/5 flex flex-wrap justify-between gap-3 bg-black/40">
+                <button onclick="runRollbackUpdate()" class="px-5 py-3 rounded-[1.5rem] text-[15px] font-bold bg-red-500/10 text-red-400 border border-red-500/25 hover:bg-red-500 hover:text-white transition-all uppercase tracking-widest">REVERTIR</button>
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="closeUpdater()" class="px-5 py-3 rounded-[1.5rem] text-[15px] font-bold bg-white/5 text-white border border-white/10 hover:bg-white/10 transition-all uppercase tracking-widest">CERRAR</button>
+                    <button onclick="saveUpdaterConfig()" class="px-5 py-3 rounded-[1.5rem] text-[15px] font-bold bg-white/10 text-white border border-white/15 hover:bg-white/20 transition-all uppercase tracking-widest">GUARDAR CONFIG</button>
+                    <button onclick="runUpdateCheck()" class="px-5 py-3 rounded-[1.5rem] text-[15px] font-bold bg-white/10 text-white border border-white/15 hover:bg-white/20 transition-all uppercase tracking-widest">BUSCAR</button>
+                    <button id="upd-apply-btn" onclick="runApplyUpdate()" class="px-6 py-3 rounded-[1.5rem] text-[15px] font-black bg-accent text-black hover:bg-white transition-all shadow-accent uppercase tracking-widest" style="opacity:0.35;pointer-events:none">ACTUALIZAR</button>
+                </div>
+            </footer>
         </div>
     </div>
 
