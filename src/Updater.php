@@ -32,6 +32,17 @@ class Updater {
     private function loadConfig() {
         $file = $this->root . '/' . self::CONFIG_FILE;
         $cfg = (file_exists($file)) ? (json_decode(file_get_contents($file), true) ?: []) : [];
+        if (empty($cfg['repo'])) {
+            $defaultFile = $this->root . '/config/updater.default.json';
+            if (file_exists($defaultFile)) {
+                $def = json_decode(file_get_contents($defaultFile), true) ?: [];
+                if (!empty($def['repo']) && is_string($def['repo'])) {
+                    $cfg['repo'] = trim($def['repo']);
+                    if (!empty($def['branch']) && is_string($def['branch'])) $cfg['branch'] = trim($def['branch']);
+                    if (isset($def['auto_check'])) $cfg['auto_check'] = (bool)$def['auto_check'];
+                }
+            }
+        }
         if (!isset($cfg['repo']) || !is_string($cfg['repo'])) $cfg['repo'] = '';
         if (!isset($cfg['branch']) || !is_string($cfg['branch'])) $cfg['branch'] = 'main';
         if (!isset($cfg['auto_check'])) $cfg['auto_check'] = true;

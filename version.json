@@ -1,5 +1,5 @@
 {
-    "version": "1.8.17",
+    "version": "1.8.18",
     "last_update": "2026-08-07",
-    "changelog": "Nuevos kits de login claros, profesionales y minimalistas (Soft Claro, Aurora Suave y Corporativo Claro): paletas amigables en tonos claros con acentos índigo/violeta, tarjeta redondeada con sombra suave, gradientes pastel animados (aurora) y diseño de dos paneles con marca (corporate). Las variables de cada kit viven solo dentro del login, sin afectar el tema de la aplicacion, y el switcher de Estilo/Tema se integra a la paleta clara."
+    "changelog": "El actualizador queda pre-configurado de fábrica: si no existe config/updater.json, se usa config/updater.default.json (repo GabrielLop3z/AS400-Portable-Libre, rama main). Ya no aparece 'repositorio no configurado' en instalaciones nuevas."
 }
