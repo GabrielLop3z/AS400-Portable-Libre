@@ -1,5 +1,5 @@
 {
-    "version": "1.8.11",
+    "version": "1.8.12",
     "last_update": "2026-08-07",
-    "changelog": "Actualizaciones autom\u00e1ticas desde GitHub: nueva secci\u00f3n Actualizaciones en el panel (buscar, instalar y revertir versiones con respaldo autom\u00e1tico, verificaci\u00f3n SHA-256 y lint de seguridad antes de aplicar). La versi\u00f3n ahora se muestra din\u00e1micamente desde version.json."
+    "changelog": "Correcci\u00f3n en gesti\u00f3n de spools: la acci\u00f3n Reimprimir ya no usa CHGSPLFA STATUS(*READY) (que falla con error 550 en AS/400 V5R3) y ahora libera el spool con RLSSPLF, el mismo mando probado de la acci\u00f3n Soltar. El cambio de estado en 'Cambiar Propiedades' se resuelve con HLDSPLF/RLSSPLF y se eliminaron los estados no configurables (*CLOSED/*OPEN)."
 }

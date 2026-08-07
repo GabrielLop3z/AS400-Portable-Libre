@@ -1470,8 +1470,6 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
                         <option value="">Sin cambios</option>
                         <option value="*READY">*READY</option>
                         <option value="*HELD">*HELD</option>
-                        <option value="*CLOSED">*CLOSED</option>
-                        <option value="*OPEN">*OPEN</option>
                     </select>
                 </div>
                 <div class="grid grid-cols-2 gap-5">
@@ -4035,8 +4033,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
         }
 
         const SPOOL_STATUS_MAP = {
-            RDY: '*READY', HLD: '*HELD', HELD: '*HELD', CLO: '*CLOSED', CLOSED: '*CLOSED',
-            OPN: '*OPEN', OPEN: '*OPEN', WTR: '*READY', SAV: '*READY', PRT: '*READY'
+            RDY: '*READY', HLD: '*HELD', HELD: '*HELD', WTR: '*READY', SAV: '*READY', PRT: '*READY'
         };
 
         function openChangePropsModal(sp) {

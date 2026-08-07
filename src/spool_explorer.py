@@ -187,41 +187,53 @@ def manage_spool(host, user, password, sp_action, file_name, job, number, params
 
         spec = "FILE(" + str(file_name) + ") JOB(" + str(job) + ") SPLNBR(" + str(number) + ")"
 
+        commands = []
         if sp_action == "delete":
-            cmd = "DLTSPLF " + spec
+            commands.append("DLTSPLF " + spec)
         elif sp_action == "hold":
-            cmd = "HLDSPLF " + spec
+            commands.append("HLDSPLF " + spec)
         elif sp_action == "release":
-            cmd = "RLSSPLF " + spec
+            commands.append("RLSSPLF " + spec)
         elif sp_action == "reprint":
-            # Equivale a imprimir de nuevo: se libera para que el writer lo procese
-            cmd = "CHGSPLFA " + spec + " STATUS(*READY)"
+            # Imprimir de nuevo: se libera para que el writer lo procese.
+            # CHGSPLFA ... STATUS(*READY) devuelve error 550 en V5R3 (parametro
+            # STATUS no soportado por CHGSPLFA); RLSSPLF es el mando fiable
+            # (mismo que usa la accion "release" y que esta probado en produccion).
+            commands.append("RLSSPLF " + spec)
         elif sp_action == "change":
-            opts = []
+            attrs = []
             if params.get("outq"):
-                opts.append("OUTQ(" + str(params["outq"]) + ")")
+                attrs.append("OUTQ(" + str(params["outq"]) + ")")
             if params.get("forms"):
-                opts.append("FORMS(" + str(params["forms"]) + ")")
+                attrs.append("FORMS(" + str(params["forms"]) + ")")
             if params.get("copies") not in (None, ''):
-                opts.append("COPIES(" + str(int(params["copies"])) + ")")
+                attrs.append("COPIES(" + str(int(params["copies"])) + ")")
             if params.get("prty") not in (None, ''):
-                opts.append("PRTY(" + str(int(params["prty"])) + ")")
+                attrs.append("PRTY(" + str(int(params["prty"])) + ")")
             if params.get("usrdata"):
-                opts.append("USRDTA(" + str(params["usrdata"]) + ")")
-            if params.get("status"):
-                opts.append("STATUS(" + str(params["status"]) + ")")
-            if not opts:
+                attrs.append("USRDTA(" + str(params["usrdata"]) + ")")
+            # STATUS no es un parametro de CHGSPLFA en V5R3: se resuelve con los
+            # mandos de estado (HLDSPLF/RLSSPLF) que si funcionan en ese release.
+            status = str(params.get("status") or "").strip().upper()
+            if attrs:
+                commands.append("CHGSPLFA " + spec + " " + " ".join(attrs))
+            if status in ("*HELD", "*HOLD"):
+                commands.append("HLDSPLF " + spec)
+            elif status == "*READY":
+                commands.append("RLSSPLF " + spec)
+            if not commands:
                 raise ValueError("Sin parámetros de cambio para CHGSPLFA")
-            cmd = "CHGSPLFA " + spec + " " + " ".join(opts)
         else:
             raise ValueError("Acción desconocida: " + str(sp_action))
 
-        ok, res = execute_as400(ftp, cmd)
+        for c in commands:
+            ok, res = execute_as400(ftp, c)
+            if not ok:
+                ftp.quit()
+                return {"success": False, "message": res}
         ftp.quit()
 
-        if ok:
-            return {"success": True, "message": "Comando ejecutado correctamente en el AS/400", "detail": res}
-        return {"success": False, "message": res}
+        return {"success": True, "message": "Comando ejecutado correctamente en el AS/400", "detail": commands}
     except Exception as e:
         return {"success": False, "message": format_error(e)}
 
