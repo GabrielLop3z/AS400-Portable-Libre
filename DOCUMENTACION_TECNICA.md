@@ -76,6 +76,42 @@ Carga rápida de credenciales en el login, persistidas solo en `localStorage` de
 
 ---
 
+## 10. Actualizaciones Automáticas (Updater)
+La app se actualiza a sí misma desde GitHub. La versión local vive en `version.json` y la versión remota se compara con `version.json` de la rama configurada del repositorio.
+
+### Empaquetado y Release
+*   **`build_update_zip.ps1`:** construye `update_vX.Y.Z.zip` + `update_vX.Y.Z.zip.sha256`. Empaqueta **solo archivos versionados** (`git ls-files`) — nunca runtimes, datos de usuario ni respaldos — y agrega `_updater/version.txt` + `_updater/remove.txt` (archivos borrados desde el tag anterior, vía `git diff --name-status --diff-filter=D`).
+*   **`.github/workflows/release.yml`:** al hacer `git tag vX.Y.Z && git push origin vX.Y.Z`, un runner Windows ejecuta el script y publica ambos assets con `softprops/action-gh-release`.
+*   **Regla de versionado:** el `version` de `version.json` debe coincidir con el tag del release (`v1.8.11` ↔ `1.8.11`); el updater busca la release `tags/v<version_remota>`.
+
+### Configuración y Estado
+*   **`config/updater.json`** (por instancia, ignorado por git, nunca se sobrescribe al actualizar): `repo` (usuario/repo), `branch`, `auto_check`, `last_check`, `last_applied`, `last_applied_version`. Se edita desde el modal de Actualizaciones (`save_updater_config`) con validación de formato.
+*   **`cache/updater_state.json`:** estado de la última comprobación (`remote_version`, `changelog`, `available`, `zip_url`, `sha256_url`, `checked_at`).
+*   **`cache/update.lock`:** lock global para evitar dos actualizaciones simultáneas.
+
+### Proceso de `apply()` (src/Updater.php)
+1.  Resuelve URLs del release (`api.github.com/repos/.../releases/tags/v<ver>`).
+2.  Descarga `update_vX.Y.Z.zip` y `.sha256` con cURL (`cacert.pem` local; si falta, `SSL_VERIFYPEER=false`) y verifica el hash SHA-256.
+3.  Extrae a `cache/update_stage_<ts>` con `sanitizeRelPath()` (bloquea `..` y rutas absolutas) y `isProtectedPath()`.
+4.  Ejecuta `php -l` sobre todo el PHP propio (excluye `vendor/` y `vendor74/`); si hay errores, rechaza el paquete.
+5.  Genera `backups/update_<ts>/_manifest.json` (`replaced`/`new`/`removed`) y copia ahí lo que será reemplazado/eliminado.
+6.  Copia el stage a la raíz y borra los archivos de `_updater/remove.txt`; ante cualquier fallo a mitad, `restoreBackup()` revierte automáticamente.
+7.  Limpia stage/zip/lock y actualiza `config/updater.json` (`last_applied`).
+
+### `rollback()`
+Restaura el respaldo más reciente de `backups/update_*` (reverted `replaced`, restaura `removed`, borra `new`).
+
+### Rutas protegidas (nunca se tocan al actualizar)
+*   **Directorios:** `php`, `php74`, `php82`, `python`, `python311`, `python38`, `redist`, `uploads`, `exports`, `cache`, `backups`, `.git`, `backup_v1.7.5`, `backup_v1.8.0_pre_redesign`.
+*   **Archivos:** `config/proxy.dat`, `config/gatekeeper.json`, `config/themes.json`, `config/templates.json`, `config/updater.json`, `config/updater_state.json`, `trace.log`, `debug_raw.txt`, `server_logs.txt`, `VC_redist.x64.exe`.
+
+### Integración
+*   **`process.php`:** acciones `updater_status`, `check_update`, `apply_update`, `rollback_update`, `save_updater_config` (requieren sesión; `apply/rollback/save` verifican el hash de Gatekeeper si está configurado). `check_gatekeeper`/`validate_gatekeeper`/`update_gatekeeper` funcionan pre-login.
+*   **`index.php`:** botón "Actualizar" en el sidebar, modal `#updater-modal`, JS `openUpdater/loadUpdaterStatus/runUpdateCheck/runApplyUpdate/runRollbackUpdate/saveUpdaterConfig`, auto-check cada 24 h si `auto_check` está activo.
+*   **Binario de lint:** `phpBinary()` elige `php82`/`php74` según `php_uname('r')` (Win7 usa 6.1).
+
+---
+
 ## 6. Mantenimiento y Depuración
 *   **Limpieza Automática:** El sistema purga archivos temporales de exportación periódicamente.
 *   **Caché Local:** Utiliza LocalStorage para recordar el tema visual seleccionado y las últimas plantillas usadas.

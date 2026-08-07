@@ -248,6 +248,7 @@
             <a href="#dashboard" class="hover:text-cyan-400 transition-colors">Dash</a>
             <a href="#editor" class="hover:text-cyan-400 transition-colors">Editor</a>
             <a href="#exportar" class="hover:text-cyan-400 transition-colors">Export</a>
+                <a href="#actualizaciones" class="hover:text-cyan-400 transition-colors">Update</a>
         </div>
         <!-- Mobile/Iframe button -->
         <div class="lg:hidden">
@@ -1301,6 +1302,64 @@
                                 <div>Mainframe Bridge: <span class="text-green-400">Conectado (V5R3M0)</span></div>
                                 <div>Crypto: <span class="text-white">AES-256 Enabled</span></div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══════════════════════════════════════════
+             ACTUALIZACIONES
+        ═══════════════════════════════════════════ -->
+        <section id="actualizaciones" class="max-w-6xl mx-auto px-6 py-24 space-y-16">
+            <div class="space-y-3">
+                <div class="tag">Mantenimiento</div>
+                <h2 class="text-5xl font-black uppercase tracking-tight">Actualizaciones</h2>
+                <p class="text-gray-400 max-w-2xl text-lg leading-relaxed">
+                    La aplicación se actualiza a nuevas versiones directamente desde el panel. El botón
+                    <strong class="text-white">Actualizar</strong> de la barra lateral abre el centro de
+                    actualizaciones para buscar, instalar o revertir versiones.
+                </p>
+            </div>
+
+            <div class="space-y-8">
+                <h3 class="text-2xl font-bold text-white uppercase tracking-tight border-l-4 border-cyan-500 pl-4">
+                    Cómo funciona</h3>
+                <div class="grid md:grid-cols-2 gap-10 items-start">
+                    <div class="space-y-4">
+                        <div class="card p-5 space-y-2">
+                            <div class="font-bold text-white text-sm">📥 Buscar actualizaciones</div>
+                            <p class="text-sm text-gray-400">Consulta el repositorio y muestra la versión remota, la
+                                fecha de la última comprobación y el changelog de la nueva versión.</p>
+                        </div>
+                        <div class="card p-5 space-y-2">
+                            <div class="font-bold text-white text-sm">⬆ Instalar</div>
+                            <p class="text-sm text-gray-400">Descarga el paquete oficial, verifica su firma SHA-256,
+                                comprueba que el código no tenga errores de sintaxis y aplica los cambios creando un
+                                respaldo automático en la carpeta <code class="text-cyan-400">backups/</code>. Tus
+                                datos de usuario (configuración, proxy, uploads y exportaciones) se conservan.</p>
+                        </div>
+                        <div class="card p-5 space-y-2">
+                            <div class="font-bold text-white text-sm">↩ Revertir</div>
+                            <p class="text-sm text-gray-400">Restaura la versión anterior desde el último respaldo de
+                                actualización si algo no funciona como esperabas.</p>
+                        </div>
+                        <div class="card p-5 space-y-2">
+                            <div class="font-bold text-white text-sm">🔐 Seguridad</div>
+                            <p class="text-sm text-gray-400">Las acciones de instalar, revertir y guardar configuración
+                                requieren la contraseña de administrador (Gatekeeper) si está activada.</p>
+                        </div>
+                    </div>
+                    <div class="ss-frame card-glow">
+                        <div class="p-6 space-y-3 font-mono text-sm">
+                            <div class="text-gray-400">Versión local: <span class="text-green-400">v1.8.11</span></div>
+                            <div class="text-gray-400">Última comprobación: <span class="text-white">hoy</span></div>
+                            <div class="text-gray-400">Última aplicación: <span class="text-white">—</span></div>
+                            <div class="text-gray-400">Repositorio: <span class="text-cyan-400">usuario/repo</span></div>
+                            <div class="text-gray-400">Rama: <span class="text-cyan-400">main</span></div>
+                            <div class="text-sm">Comprobación automática cada 24 h al cargar el panel.</div>
                         </div>
                     </div>
                 </div>
