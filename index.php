@@ -20,8 +20,8 @@ if ($requestLogout) {
 }
 
 $isLoggedIn = isset($_SESSION['as400_session']);
-$assetVer = '1.8.13';
-$appVersion = '1.8.13';
+$assetVer = '1.8.14';
+$appVersion = '1.8.14';
 $appVersionFile = __DIR__ . '/version.json';
 if (file_exists($appVersionFile)) {
     $appVersionData = json_decode(file_get_contents($appVersionFile), true);

@@ -1,5 +1,5 @@
 {
-    "version": "1.8.13",
+    "version": "1.8.14",
     "last_update": "2026-08-07",
-    "changelog": "Nuevos kits de pantalla de inicio: 5 estilos intercambiables (Terminal 5250, Vidrio, Corporativo, Matrix y Minimal) seleccionables desde el bot\u00f3n 'Estilo' del login. La elecci\u00f3n se guarda por navegador (localStorage) con default configurable en config/login_kits.json; los kits respetan los colores del tema activo. Nuevos archivos: assets/login-kits.css y config/login_kits.json."
+    "changelog": "Primera ejecuci\u00f3n autosuficiente: al descargar solo el c\u00f3digo desde GitHub, la aplicaci\u00f3n detecta que faltan los componentes portables (PHP, Python y VC Redist) y los descarga/instala autom\u00e1ticamente desde el release 'runtime-v1' del repositorio (115 MB, una sola vez). Nuevo archivo: Configurar_Entorno.bat; los lanzadores Iniciar_Servidor.bat, DEBUG_LANZADOR.bat y Simular_Win7_en_Win10.bat se integran con \u00e9l y la documentaci\u00f3n (README.md, MANUAL_INSTALACION.md) se actualiz\u00f3."
 }
