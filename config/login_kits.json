@@ -1,0 +1,25 @@
+{
+    "default": "terminal",
+    "kits": {
+        "terminal": {
+            "name": "Terminal 5250",
+            "description": "Terminal CRT estilo 5250 (clásico)"
+        },
+        "glass": {
+            "name": "Vidrio",
+            "description": "Tarjeta glassmorphism sobre gradiente animado"
+        },
+        "split": {
+            "name": "Corporativo",
+            "description": "Dos paneles: branding a la izquierda, acceso a la derecha"
+        },
+        "matrix": {
+            "name": "Matrix",
+            "description": "Lluvia de código estilo hacker con brillo neón"
+        },
+        "minimal": {
+            "name": "Minimal",
+            "description": "Formulario limpio y centrado sin decoraciones"
+        }
+    }
+}

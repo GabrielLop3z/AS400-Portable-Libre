@@ -20,8 +20,8 @@ if ($requestLogout) {
 }
 
 $isLoggedIn = isset($_SESSION['as400_session']);
-$assetVer = '1.8.10';
-$appVersion = '1.8.10';
+$assetVer = '1.8.13';
+$appVersion = '1.8.13';
 $appVersionFile = __DIR__ . '/version.json';
 if (file_exists($appVersionFile)) {
     $appVersionData = json_decode(file_get_contents($appVersionFile), true);
@@ -34,6 +34,15 @@ $themesFile = __DIR__ . '/config/themes.json';
 if (file_exists($themesFile)) {
     $themesData = json_decode(file_get_contents($themesFile), true) ?: [];
 }
+// Kits de pantalla de inicio (estilos de login intercambiables).
+$loginKits = [];
+$loginKitsFile = __DIR__ . '/config/login_kits.json';
+if (file_exists($loginKitsFile)) {
+    $loginKits = json_decode(file_get_contents($loginKitsFile), true) ?: [];
+}
+if (!is_array($loginKits) || !isset($loginKits['kits']) || !is_array($loginKits['kits']) || empty($loginKits['kits'])) {
+    $loginKits = ['default' => 'terminal', 'kits' => ['terminal' => ['name' => 'Terminal 5250', 'description' => 'Terminal CRT estilo 5250 (clásico)']]];
+}
 $pdfTemplates = [];
 $pdfTemplatesFile = __DIR__ . '/config/pdf_templates.json';
 if (file_exists($pdfTemplatesFile)) {
@@ -44,6 +53,12 @@ function themeMenuButton($key, $t) {
     $accent = htmlspecialchars((string)($t['accent'] ?? '#ffffff'), ENT_QUOTES, 'UTF-8');
     $name = strtoupper(htmlspecialchars((string)($t['name'] ?? $key), ENT_QUOTES, 'UTF-8'));
     return '<button onclick="applyAppTheme(\'' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '\')" class="w-full text-left px-5 py-3 text-[15px] font-bold text-gray-400 hover:bg-white/5 hover:text-[' . $accent . '] flex items-center gap-3 transition-all"><span class="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_' . $accent . ']" style="background:' . $accent . '"></span> ' . $name . '</button>';
+}
+
+function loginKitButton($key, $k) {
+    $name = strtoupper(htmlspecialchars((string)($k['name'] ?? $key), ENT_QUOTES, 'UTF-8'));
+    $desc = htmlspecialchars((string)($k['description'] ?? ''), ENT_QUOTES, 'UTF-8');
+    return '<button data-kit="' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '" onclick="applyLoginKit(\'' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '\')" class="w-full text-left px-5 py-3 text-[15px] font-bold text-gray-400 hover:bg-white/5 hover:text-[var(--accent)] flex items-start gap-3 transition-all"><span class="kit-swatch" data-swatch="' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '"></span><span class="flex-1"><span class="block">' . $name . '</span><span class="block text-xs font-normal text-gray-500 mt-0.5">' . $desc . '</span></span></button>';
 }
 
 $pdfTemplateEntries = [];
@@ -157,6 +172,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
     ?>
     <style id="theme-css"><?= implode("\n", $themeCssBlocks) ?></style>
     <link href="assets/theme.css?v=<?= $assetVer ?>" rel="stylesheet">
+    <link href="assets/login-kits.css?v=<?= $assetVer ?>" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -432,6 +448,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
     </style>
     <script>
         const themesApp = <?= json_encode($themesData, JSON_PRETTY_PRINT) ?>;
+        const loginKitsApp = <?= json_encode($loginKits, JSON_PRETTY_PRINT) ?>;
 
         function applyAppTheme(themeName) {
             const t = themesApp[themeName];
@@ -443,6 +460,68 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
             // Notifica para refrescar colores dinamicos (graficos, sellos, etc.)
             document.dispatchEvent(new CustomEvent('app:themechange', { detail: themeName }));
         }
+
+        function applyLoginKit(kitId) {
+            const kits = (loginKitsApp && loginKitsApp.kits) ? loginKitsApp.kits : null;
+            if (!kits || !kits[kitId]) kitId = (loginKitsApp && loginKitsApp.default) || 'terminal';
+            try { localStorage.setItem('app_login_kit', kitId); } catch (e) {}
+            document.documentElement.setAttribute('data-login-kit', kitId);
+            document.querySelectorAll('#kit-menu-items [data-kit]').forEach(b => {
+                b.classList.toggle('kit-active', b.getAttribute('data-kit') === kitId);
+            });
+            if (kitId === 'matrix') startMatrixRain(); else stopMatrixRain();
+            document.dispatchEvent(new CustomEvent('app:kitchange', { detail: kitId }));
+        }
+
+        function toggleKitMenu(e) {
+            if (e) e.stopPropagation();
+            const menu = document.getElementById('kit-menu-items');
+            if (!menu) return;
+            menu.classList.toggle('hidden');
+        }
+
+        let _matrixRaf = null;
+        let _matrixDrops = null;
+        function startMatrixRain() {
+            const cv = document.getElementById('matrix-canvas');
+            if (!cv) return;
+            const parent = cv.parentElement;
+            cv.width = parent ? parent.clientWidth : window.innerWidth;
+            cv.height = parent ? parent.clientHeight : window.innerHeight;
+            _matrixDrops = null;
+            if (_matrixRaf) { cancelAnimationFrame(_matrixRaf); _matrixRaf = null; }
+            _matrixRaf = requestAnimationFrame(matrixTick);
+        }
+        function stopMatrixRain() {
+            if (_matrixRaf) { cancelAnimationFrame(_matrixRaf); _matrixRaf = null; }
+        }
+        function matrixTick() {
+            const cv = document.getElementById('matrix-canvas');
+            if (!cv || cv.style.display === 'none') { stopMatrixRain(); return; }
+            const ctx = cv.getContext('2d');
+            const rgb = accentRGBRaw();
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+            ctx.fillRect(0, 0, cv.width, cv.height);
+            const fs = 16;
+            const cols = Math.floor(cv.width / fs);
+            if (!_matrixDrops || _matrixDrops.length !== cols) {
+                _matrixDrops = new Array(cols).fill(0).map(() => Math.floor(Math.random() * -Math.floor(cv.height / fs)));
+            }
+            ctx.font = fs + 'px "JetBrains Mono", monospace';
+            ctx.fillStyle = 'rgba(' + rgb + ', 0.9)';
+            const chars = 'アイウエオカキクケコサシスセソ0123456789ABCDEF$%&#@<>*+=;:';
+            for (let i = 0; i < cols; i++) {
+                const ch = chars[Math.floor(Math.random() * chars.length)];
+                const y = _matrixDrops[i] * fs;
+                ctx.fillText(ch, i * fs, y);
+                if (y > cv.height && Math.random() > 0.975) _matrixDrops[i] = 0;
+                _matrixDrops[i]++;
+            }
+            _matrixRaf = requestAnimationFrame(matrixTick);
+        }
+        window.addEventListener('resize', () => {
+            if (document.documentElement.getAttribute('data-login-kit') === 'matrix') startMatrixRain();
+        });
 
         function getDefaultLineColor() {
             const t = document.documentElement.getAttribute('data-theme') || localStorage.getItem('app_theme') || 'negro';
@@ -673,6 +752,13 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
         const savedTheme = (storedTheme && themesApp[storedTheme]) ? storedTheme : 'negro';
         applyAppTheme(savedTheme);
         window.addEventListener('DOMContentLoaded', () => applyAppTheme(savedTheme));
+
+        // Apply login kit immediately to avoid flash (solo afecta al login)
+        let storedKit = null;
+        try { storedKit = localStorage.getItem('app_login_kit'); } catch (e) {}
+        const savedKit = (loginKitsApp && loginKitsApp.kits && storedKit && loginKitsApp.kits[storedKit]) ? storedKit : ((loginKitsApp && loginKitsApp.default) || 'terminal');
+        document.documentElement.setAttribute('data-login-kit', savedKit);
+        window.addEventListener('DOMContentLoaded', () => applyLoginKit(savedKit));
     </script>
     <style>
         /* UI Feel Enhancements */
@@ -867,14 +953,41 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
 <body id="app-body" class="bg-[var(--bg-main)] text-gray-300 font-sans h-screen w-full overflow-hidden">
 <?php if (!$isLoggedIn): ?>
     <!-- LOGIN TERMINAL AS/400 -->
-    <div id="login-container" class="flex items-center justify-center h-full w-full relative overflow-hidden transition-colors duration-700" style="background: var(--term-crt-bg);">
+    <div id="login-container" class="flex items-center justify-center h-full w-full relative overflow-hidden transition-colors duration-700">
         <!-- Scanlines y viñeta CRT -->
         <div class="crt-overlay"></div>
         <!-- Glow de fondo sutil -->
-        <div class="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[70%] h-[55%] rounded-full blur-[140px] pointer-events-none" style="background: var(--term-glow)"></div>
+        <div id="login-glow" class="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[70%] h-[55%] rounded-full blur-[140px] pointer-events-none" style="background: var(--term-glow)"></div>
+        <!-- Decoraciones por kit: blobs (vidrio) y lluvia de codigo (matrix) -->
+        <div id="login-blobs" class="kit-decoration" aria-hidden="true"><span class="blob blob-a"></span><span class="blob blob-b"></span><span class="blob blob-c"></span></div>
+        <canvas id="matrix-canvas" class="kit-decoration" aria-hidden="true"></canvas>
+        <!-- Panel de marca (kit corporativo) -->
+        <div id="login-brand" class="kit-decoration">
+            <div class="brand-inner">
+                <img src="assets/spool_icon.png" alt="Spool Explorer" class="brand-logo">
+                <h2 class="brand-title">SPOOL<span>.</span>EXPLORER</h2>
+                <p class="brand-tagline">Explorador de colas de impresión AS/400</p>
+                <ul class="brand-features">
+                    <li><span class="bf-dot"></span>Colas de impresión en tiempo real</li>
+                    <li><span class="bf-dot"></span>Vista previa y exportación de spools</li>
+                    <li><span class="bf-dot"></span>Seguridad y perfiles integrados</li>
+                </ul>
+            </div>
+        </div>
 
-        <!-- Theme Switcher for Login -->
-        <div class="absolute top-8 right-8 z-50">
+        <!-- Switcher de Login: Estilo + Tema -->
+        <div class="absolute top-8 right-8 z-50 flex items-start gap-3">
+            <div class="relative group/kits">
+                <button id="login-kit-btn" onclick="toggleKitMenu(event)" class="p-4 bg-[var(--bg-panel)] border border-[var(--border-color)] rounded-xl text-[var(--text-muted)] hover:text-[var(--accent)] hover:border-[var(--accent)] transition-all premium-hover flex items-center gap-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                    <span class="text-sm font-bold tracking-widest uppercase">Estilo</span>
+                </button>
+                <div id="kit-menu-items" class="hidden absolute top-full right-0 mt-3 w-72 bg-[var(--bg-panel)] border border-[var(--border-color)] rounded-xl shadow-[0_16px_48px_rgba(0,0,0,0.35)] overflow-hidden z-[100] animate-fade-in-up">
+                    <div class="p-2 space-y-1">
+                        <?php foreach ($loginKits['kits'] as $kitKey => $kitInfo) { echo loginKitButton($kitKey, $kitInfo); } ?>
+                    </div>
+                </div>
+            </div>
             <div class="relative group/theme">
                 <button id="login-theme-btn" onclick="toggleThemeMenu(event)" class="p-4 bg-[var(--bg-panel)] border border-[var(--border-color)] rounded-xl text-[var(--text-muted)] hover:text-[var(--accent)] hover:border-[var(--accent)] transition-all premium-hover flex items-center gap-2">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.172-1.172a4 4 0 115.656 5.656L10 17.657"></path></svg>
@@ -947,7 +1060,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
         </div>
 
         <!-- Pie -->
-        <div class="absolute bottom-6 left-0 w-full text-center z-10">
+        <div id="login-footer" class="absolute bottom-6 left-0 w-full text-center z-10">
             <p class="text-base text-[var(--text-muted)] tracking-[0.2em] uppercase opacity-70">Spool <span class="font-bold text-[var(--accent)]">v<?= htmlspecialchars($appVersion) ?></span> &middot; GLR</p>
         </div>
     </div>
@@ -984,10 +1097,13 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
             let bootSeen = false;
             try { bootSeen = sessionStorage.getItem('spool_boot_seen') === '1'; } catch (e) {}
             if (bootSeen) { dismissLoader(loader, 140); return; }
+            const themeNames = Object.values(themesApp).map(t => t.name || '').filter(Boolean).join(' / ');
+            const kitNames = Object.values(loginKitsApp.kits || {}).map(k => k.name || '').filter(Boolean).join(' / ');
             const lines = [
                 'Núcleo Spool Portable V12',
                 'Memoria OK — 512 colas detectadas',
-                'Temas cargados: Negro / Rojo / Claro',
+                'Temas: ' + themeNames,
+                'Estilos de login: ' + kitNames,
                 'Módulo Explorador ... OK',
                 'Enlace AS/400 ... Configurado',
                 'Entorno de trabajo listo'
@@ -5274,9 +5390,15 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
         document.addEventListener('click', (e) => {
             // Theme Menu
             const themeMenu = document.getElementById('theme-menu-items');
-            const themeBtn = document.getElementById('theme-menu-btn');
+            const themeBtn = document.getElementById('theme-menu-btn') || document.getElementById('login-theme-btn');
             if (themeMenu && themeBtn && !themeMenu.contains(e.target) && !themeBtn.contains(e.target)) {
                 themeMenu.classList.add('hidden');
+            }
+            // Kit Menu (login)
+            const kitMenu = document.getElementById('kit-menu-items');
+            const kitBtn = document.getElementById('login-kit-btn');
+            if (kitMenu && kitBtn && !kitMenu.contains(e.target) && !kitBtn.contains(e.target)) {
+                kitMenu.classList.add('hidden');
             }
             
             // Context Menu

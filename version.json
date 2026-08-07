@@ -1,5 +1,5 @@
 {
-    "version": "1.8.12",
+    "version": "1.8.13",
     "last_update": "2026-08-07",
-    "changelog": "Correcci\u00f3n en gesti\u00f3n de spools: la acci\u00f3n Reimprimir ya no usa CHGSPLFA STATUS(*READY) (que falla con error 550 en AS/400 V5R3) y ahora libera el spool con RLSSPLF, el mismo mando probado de la acci\u00f3n Soltar. El cambio de estado en 'Cambiar Propiedades' se resuelve con HLDSPLF/RLSSPLF y se eliminaron los estados no configurables (*CLOSED/*OPEN)."
+    "changelog": "Nuevos kits de pantalla de inicio: 5 estilos intercambiables (Terminal 5250, Vidrio, Corporativo, Matrix y Minimal) seleccionables desde el bot\u00f3n 'Estilo' del login. La elecci\u00f3n se guarda por navegador (localStorage) con default configurable en config/login_kits.json; los kits respetan los colores del tema activo. Nuevos archivos: assets/login-kits.css y config/login_kits.json."
 }
