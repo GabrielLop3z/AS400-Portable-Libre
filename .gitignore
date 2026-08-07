@@ -35,3 +35,7 @@ php_errors.log
 .env
 .vscode/
 .idea/
+
+# --- Python (cache de bytecode) ---
+__pycache__/
+*.pyc
