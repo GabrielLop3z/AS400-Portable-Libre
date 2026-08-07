@@ -14,16 +14,26 @@
 - **Seguridad Gatekeeper**: Panel de administración protegido para gestionar el túnel de conexión.
 
 ## 🛠️ Instalación y Uso Rápido
-1.  Descargue y extraiga la carpeta `Portable_Spool` (o el código desde GitHub).
-2.  Haga doble clic en `Iniciar_Servidor.bat`.
-3.  **Primera ejecución:** si faltan los componentes portables (PHP, Python, VC Redist), la aplicación los descarga e instala automáticamente desde los Releases de GitHub (115 MB). Solo necesita internet la primera vez.
+
+### Opción A — Descarga única (todo incluido) ⭐ Recomendada
+1.  En la página de [Releases](https://github.com/GabrielLop3z/AS400-Portable-Libre/releases), descargue
+    **`AS400_Portable_Libre_vX.Y.Z_TODO_INCLUIDO.zip`** (un solo archivo con todo: código + PHP 7.4/8.2 + Python 3.8/3.11 + VC Redist).
+2.  Descomprima la carpeta en cualquier ubicación (unidad USB incluida).
+3.  Haga doble clic en `Iniciar_Servidor.bat` — funciona sin instalación y **sin necesidad de internet**.
 4.  Ingrese la IP de su servidor AS/400 y sus credenciales de usuario.
+
+### Opción B — Código + auto-descarga del entorno
+1.  Descargue y extraiga el código desde GitHub.
+2.  Haga doble clic en `Iniciar_Servidor.bat`.
+3.  **Primera ejecución:** si faltan los componentes portables (PHP, Python, VC Redist), la aplicación los descarga e instala automáticamente. Solo necesita internet la primera vez.
 
 > **Nota (descarga desde GitHub):** el repositorio solo contiene el código de la aplicación.
 > Los componentes portables (`php74`, `php82`, `python311`, `python38`, `redist`) se descargan automáticamente al primer arranque mediante `Configurar_Entorno.bat`.
 > Si el acceso a GitHub está restringido o la descarga falla, `Configurar_Entorno.bat` reintenta con **fuentes oficiales** (php.net, python.org y Microsoft) vía `Instalar_Runtime_Oficial.ps1`.
-> Si la descarga automática falla por completo, descargue
-> `AS400_Portable_Runtime_x64.zip` desde el Release `runtime-v1` y descomprímalo en la misma carpeta.
+
+### Actualizaciones de instalaciones existentes
+Si ya tiene la aplicación, actualícela desde el menú **Actualizaciones** (paquete `update_vX.Y.Z.zip`),
+que solo reemplaza el código sin tocar sus datos, configuración ni el entorno portable.
 
 ## 📖 Documentación para el Usuario
 - [Manual de Usuario - Versión WEB](MANUAL_USUARIO_WEB.md)

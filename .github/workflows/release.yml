@@ -22,6 +22,12 @@ jobs:
           $Version = ($env:GITHUB_REF_NAME -replace '^v','')
           & ./build_update_zip.ps1 -Version $Version -OutputDir "$env:RUNNER_TEMP\release"
 
+      - name: Build full portable package (todo incluido)
+        shell: pwsh
+        run: |
+          $Version = ($env:GITHUB_REF_NAME -replace '^v','')
+          & ./build_portable_full.ps1 -Version $Version -OutputDir "$env:RUNNER_TEMP\release"
+
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
@@ -29,3 +35,5 @@ jobs:
           files: |
             ${{ runner.temp }}\release\update_v*.zip
             ${{ runner.temp }}\release\update_v*.zip.sha256
+            ${{ runner.temp }}\release\AS400_Portable_Libre_*_TODO_INCLUIDO.zip
+            ${{ runner.temp }}\release\AS400_Portable_Libre_*_TODO_INCLUIDO.zip.sha256
