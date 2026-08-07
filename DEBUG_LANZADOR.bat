@@ -11,6 +11,11 @@ set "PHP_DIR=php82"
 echo [DEBUG] Usando %PHP_DIR% por defecto para Windows 10
 pause
 
+echo [DEBUG] Comprobando componentes portables...
+call "Configurar_Entorno.bat"
+echo [DEBUG] Resultado configuracion entorno: %errorlevel%
+pause
+
 echo [DEBUG] Limpiando procesos...
 taskkill /f /im php-win.exe /t >nul 2>&1
 taskkill /f /im php.exe /t >nul 2>&1

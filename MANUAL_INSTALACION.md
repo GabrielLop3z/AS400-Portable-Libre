@@ -7,6 +7,7 @@ Este sistema está diseñado para ser **"Plug & Play"** (conectar y usar). Ahora
 ## 🚀 Paso 1: Copiar la aplicación
 1.  Copia la carpeta completa `AS400_Portable_Libre` a tu computadora (escritorio, documentos o un USB).
 2.  **IMPORTANTE:** No separes los archivos. Toda la carpeta debe estar junta para que funcione.
+3.  **Si descargaste solo el código desde GitHub:** en la carpeta faltarán los componentes portables (`php74`, `php82`, `python311`, `python38`, `redist`). No te preocupes: el sistema los descargará e instalará automáticamente la primera vez que lo inicies.
 
 ---
 
@@ -15,9 +16,12 @@ Haz doble clic en el archivo:
 👉 **`Iniciar_Servidor.bat`**
 
 El sistema realizará los siguientes pasos automáticamente:
-1.  **Validación de Shortcut:** Si no tienes el acceso directo en el escritorio, el programa lo creará por ti con el nombre **"Spool"**.
-2.  **Icono Premium:** Se configurará automáticamente el icono de portapapeles azul.
-3.  **Autodiagnóstico:** Se iniciará el motor PHP y la aplicación se abrirá sola en tu navegador.
+1.  **Primera ejecución (descarga desde GitHub):** si detecta que faltan los componentes portables, descargará automáticamente `AS400_Portable_Runtime_x64.zip` (PHP + Python + VC Redist, 115 MB) desde los Releases de GitHub y lo descomprimirá en la carpeta. Este paso solo ocurre una vez y necesita internet.
+2.  **Validación de Shortcut:** Si no tienes el acceso directo en el escritorio, el programa lo creará por ti con el nombre **"Spool"**.
+3.  **Icono Premium:** Se configurará automáticamente el icono de portapapeles azul.
+4.  **Autodiagnóstico:** Se iniciará el motor PHP y la aplicación se abrirá sola en tu navegador.
+
+> Si la descarga automática no se completa, ejecuta manualmente **`Configurar_Entorno.bat`** (también se encarga de descargar e instalar los componentes), o descarga `AS400_Portable_Runtime_x64.zip` desde el Release `runtime-v1` del repositorio y descomprímelo en la misma carpeta que `Iniciar_Servidor.bat`.
 
 ---
 
@@ -37,7 +41,7 @@ Significa que a tu Windows le faltan las librerías oficiales de Microsoft. Sigu
 ---
 
 ## 🌐 Paso 4: Sin conexión a Internet
-Todo el entorno es portable y funciona **100% sin internet**. El instalador de requisitos y los manuales están incluidos localmente.
+Una vez que los componentes portables están instalados (ya sea porque copiaste la carpeta completa o porque la primera ejecución los descargó), todo el entorno es portable y funciona **100% sin internet**. El instalador de requisitos y los manuales están incluidos localmente.
 
 ---
 

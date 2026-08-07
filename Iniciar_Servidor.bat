@@ -35,6 +35,13 @@ set "PHP_ENGINE=php82"
 ver | find "6.1" >nul && set "PHP_ENGINE=php74"
 ver | find "6.0" >nul && set "PHP_ENGINE=php74"
 
+:: --- PRIMERA EJECUCION: DESCARGAR COMPONENTES PORTABLES SI FALTAN ---
+if not exist "!PHP_ENGINE!\php.exe" (
+    echo     [#] COMPONENTES PORTABLES NO DETECTADOS
+    call "Configurar_Entorno.bat"
+    if !errorlevel! neq 0 exit /b 1
+)
+
 echo     [!] SISTEMA: %PHP_ENGINE%_ACTIVE
 timeout /t 1 /nobreak > nul
 
@@ -63,7 +70,8 @@ if !errorlevel! neq 0 (
         color 0c
         echo.
         echo     [!] ERROR CRITICO: NO SE PUDO INICIAR PHP AUN DESPUES DE INSTALAR.
-        echo     EJECUTE MANUALMENTE LOS INSTALADORES EN LA CARPETA 'redist'.
+        echo     EJECUTE 'Configurar_Entorno.bat' PARA RECUPERAR LOS COMPONENTES PORTABLES,
+        echo     O EJECUTE MANUALMENTE LOS INSTALADORES EN LA CARPETA 'redist'.
         pause
         exit
     )

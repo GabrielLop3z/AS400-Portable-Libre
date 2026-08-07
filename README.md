@@ -14,9 +14,15 @@
 - **Seguridad Gatekeeper**: Panel de administración protegido para gestionar el túnel de conexión.
 
 ## 🛠️ Instalación y Uso Rápido
-1.  Descargue y extraiga la carpeta `Portable_Spool`.
-2.  Haga doble clic en el archivo `Abrir_Spool.lnk` o ejecute `Iniciar_Servidor.bat`.
-3.  Ingrese la IP de su servidor AS/400 y sus credenciales de usuario.
+1.  Descargue y extraiga la carpeta `Portable_Spool` (o el código desde GitHub).
+2.  Haga doble clic en `Iniciar_Servidor.bat`.
+3.  **Primera ejecución:** si faltan los componentes portables (PHP, Python, VC Redist), la aplicación los descarga e instala automáticamente desde los Releases de GitHub (115 MB). Solo necesita internet la primera vez.
+4.  Ingrese la IP de su servidor AS/400 y sus credenciales de usuario.
+
+> **Nota (descarga desde GitHub):** el repositorio solo contiene el código de la aplicación.
+> Los componentes portables (`php74`, `php82`, `python311`, `python38`, `redist`) se descargan automáticamente al primer arranque mediante `Configurar_Entorno.bat`.
+> Si la descarga automática falla, ejecute `Configurar_Entorno.bat` manualmente o descargue
+> `AS400_Portable_Runtime_x64.zip` desde el Release `runtime-v1` y descomprimalo en la misma carpeta.
 
 ## 📖 Documentación para el Usuario
 - [Manual de Usuario - Versión WEB](MANUAL_USUARIO_WEB.md)

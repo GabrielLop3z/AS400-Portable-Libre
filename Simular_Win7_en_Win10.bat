@@ -28,6 +28,13 @@ echo     =============================================
 :: --- FORZAMOS MOTOR LEGACY ---
 set "PHP_ENGINE=php74"
 
+:: --- PRIMERA EJECUCION: DESCARGAR COMPONENTES PORTABLES SI FALTAN ---
+if not exist "!PHP_ENGINE!\php.exe" (
+    echo     [#] COMPONENTES PORTABLES NO DETECTADOS
+    call "Configurar_Entorno.bat"
+    if !errorlevel! neq 0 exit /b 1
+)
+
 echo     [!] MODO_APP: FORZANDO_INTERFACE_LIMPIA
 echo     [!] MOTOR: %PHP_ENGINE%_LEGACY_ACTIVE
 timeout /t 2 /nobreak > nul
