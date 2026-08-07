@@ -1,0 +1,37 @@
+# --- Runtimes portable (no versionan; el update solo reemplaza codigo) ---
+/php/
+/php74/
+/php82/
+/python/
+/python311/
+/python38/
+/redist/
+/VC_redist.x64.exe
+
+# --- Backups legacy dentro de la app ---
+/backup_v1.7.5/
+/backup_v1.8.0_pre_redesign/
+
+# --- Datos de usuario / instancia (nunca se suben ni se actualizan) ---
+/uploads/
+/exports/
+/cache/
+/backups/
+/config/proxy.dat
+/config/gatekeeper.json
+/config/themes.json
+/config/templates.json
+/config/updater.json
+
+# --- Logs y temporales ---
+/trace.log
+/debug_raw.txt
+/server_logs.txt
+*.log
+php_errors.log
+
+# --- Paquetes y herramientas ---
+*.zip
+.env
+.vscode/
+.idea/

@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spool | Manual de Usuario</title>
+    <script src="assets/tailwindcss.js"></script>
+    <link href="assets/fonts.css" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #00f3ff;
+            --bg: #080a0e;
+            --card: #0f1217;
+            --border: rgba(255, 255, 255, 0.06);
+        }
+
+        * {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Outfit', 'Inter', sans-serif;
+            background: var(--bg);
+            color: #e0e0e0;
+            overflow-x: hidden;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            body { font-size: 13px; }
+            .pt-24 { padding-top: 5rem; }
+            section { padding-top: 3rem !important; padding-bottom: 3rem !important; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0c10;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        /* Gradient text */
+        .gt {
+            background: linear-gradient(135deg, #00f3ff 0%, #0077ff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gt-warm {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7c59f 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Glass card */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+        }
+
+        .card-glow {
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.08), 0 2px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Screenshot frame */
+        .ss-frame {
+            border-radius: 1.25rem;
+            overflow: hidden;
+            border: 1px solid rgba(0, 243, 255, 0.15);
+            box-shadow: 0 0 60px rgba(0, 243, 255, 0.08), 0 20px 60px rgba(0, 0, 0, 0.7);
+        }
+
+        .ss-frame img {
+            width: 100%;
+            display: block;
+        }
+
+        /* Step badge */
+        .step-n {
+            width: 2.5rem;
+            height: 2.5rem;
+            min-width: 2.5rem;
+            border-radius: 50%;
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 0.85rem;
+            color: var(--accent);
+        }
+
+        /* Feature tag */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            background: rgba(0, 243, 255, 0.08);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            color: var(--accent);
+        }
+
+        /* Section divider */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.2), transparent);
+            margin: 0;
+        }
+
+        /* Kbd */
+        kbd {
+            display: inline-block;
+            padding: 0.2em 0.5em;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 0.35rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8em;
+            color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Navbar */
+        nav {
+            backdrop-filter: blur(20px);
+            background: rgba(8, 10, 14, 0.85);
+        }
+
+        /* Callout */
+        .callout {
+            border-left: 3px solid var(--accent);
+            background: rgba(0, 243, 255, 0.05);
+            border-radius: 0 0.75rem 0.75rem 0;
+            padding: 1rem 1.25rem;
+        }
+
+        .callout.warn {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        /* Dot pulse */
+        .dot-live {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+            }
+
+            50% {
+                opacity: 0.8;
+                box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+            }
+        }
+
+        /* Table */
+        .man-table th {
+            color: var(--accent);
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+            padding: 0.6rem 1rem;
+        }
+
+        .man-table td {
+            font-size: 0.85rem;
+            padding: 0.7rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: #c0c0c0;
+        }
+
+        .man-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Annotation arrow */
+        .annotation {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid rgba(0, 243, 255, 0.25);
+            border-radius: 0.5rem;
+            padding: 0.4rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        /* Hero grid */
+        .hero-grid {
+            background-image: linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Fixed Nav -->
+    <!-- Fixed Nav -->
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 px-4 md:px-8 py-3 md:py-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center">
+                <svg class="w-4 h-4 md:w-5 md:h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+            </div>
+            <div>
+                <div class="text-[11px] md:text-sm font-black uppercase tracking-[0.2em] gt leading-tight">Spool</div>
+                <div class="text-[8px] md:text-[10px] text-gray-500 uppercase tracking-widest font-semibold leading-tight">Manual Usuario · v1.7.5 Stable</div>
+            </div>
+        </div>
+        <div class="hidden lg:flex gap-6 text-[11px] font-bold uppercase tracking-widest text-gray-500">
+            <a href="#inicio" class="hover:text-cyan-400 transition-colors">Inicio</a>
+            <a href="#acceso" class="hover:text-cyan-400 transition-colors">Acceso</a>
+            <a href="#conexion" class="hover:text-cyan-400 transition-colors">Conexión</a>
+            <a href="#dashboard" class="hover:text-cyan-400 transition-colors">Dash</a>
+            <a href="#editor" class="hover:text-cyan-400 transition-colors">Editor</a>
+            <a href="#exportar" class="hover:text-cyan-400 transition-colors">Export</a>
+        </div>
+        <!-- Mobile/Iframe button -->
+        <div class="lg:hidden">
+            <div class="tag py-1 px-3 text-[9px]">Soporte GLR</div>
+        </div>
+    </nav>
+
+    <main class="pt-24">
+
+        <!-- ═══════════════════════════════════════════
+             HERO
+        ═══════════════════════════════════════════ -->
+        <section id="inicio"
+            class="hero-grid min-h-[85vh] flex flex-col items-center justify-center text-center px-6 py-24 relative">
+            <div
+                class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#080a0e] pointer-events-none">
+            </div>
+            <div class="relative z-10 max-w-4xl mx-auto space-y-8">
+                <div class="tag">
+                    <span class="dot-live"></span>
+                    AS/400 Infrastructure Explorer · Web &amp; Portable
+                </div>
+                <h1 class="text-5xl md:text-8xl font-black leading-none tracking-tighter">
+                    <span class="gt">Spool</span>
+                </h1>
+                <p class="text-base md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed font-medium">
+                    Herramienta empresarial para explorar, visualizar y exportar archivos spool del AS/400. Sin
+                    comandos. Sin terminales. Sin complicaciones.
+                </p>
+                <div class="flex flex-wrap justify-center gap-4 pt-4">
+                    <div class="card px-6 py-4 text-center">
+                        <div class="text-3xl font-black gt">86+</div>
+                        <div class="text-xs text-gray-500 uppercase tracking-widest mt-1">Spools en tiempo real</div>
+                    </div>
+                    <div class="card px-6 py-4 text-center">
+                        <div class="text-3xl font-black gt">3</div>
+                        <div class="text-xs text-gray-500 uppercase tracking-widest mt-1">Formatos de exportación</div>
+                    </div>
+                    <div class="card px-6 py-4 text-center">
+                        <div class="text-3xl font-black gt">V5R3M0</div>
+                        <div class="text-xs text-gray-500 uppercase tracking-widest mt-1">Mainframe Bridge</div>
+                    </div>
+                    <div class="card px-6 py-4 text-center">
+                        <div class="text-3xl font-black text-green-400">AES-256</div>
+                        <div class="text-xs text-gray-500 uppercase tracking-widest mt-1">Sesión cifrada</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══════════════════════════════════════════
+             ACCESO
+        ═══════════════════════════════════════════ -->
+        <section id="acceso" class="max-w-6xl mx-auto px-6 py-24 space-y-16">
+            <div class="space-y-3">
+                <div class="tag">Paso 1</div>
+                <h2 class="text-3xl md:text-5xl font-black uppercase tracking-tight">Cómo Abrir Spool</h2>
+                <p class="text-gray-400 max-w-2xl text-base md:text-lg leading-relaxed">
+                    Spool funciona tanto como <strong class="text-white">aplicación de escritorio (Portable)</strong>
+                    como en el <strong class="text-white">navegador web</strong>. La interfaz y funciones son
+                    prácticamente idénticas en ambas versiones.
+                </p>
+            </div>
+
+            <!-- Dos formas de acceso -->
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Portable -->
+                <div class="card p-8 space-y-5 border border-cyan-500/20 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-2xl"></div>
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-2xl">
+                            🖥️</div>
+                        <div>
+                            <div class="font-black text-lg text-white">Versión Portable</div>
+                            <div class="text-xs text-cyan-400 uppercase tracking-widest font-bold">Acceso directo en
+                                escritorio</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-center py-4">
+                        <div class="text-center space-y-2">
+                            <div class="text-6xl">📋</div>
+                            <div class="font-black text-white text-lg tracking-wide">Spool</div>
+                            <div class="text-xs text-gray-500">Acceso directo en el Escritorio</div>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3 text-sm text-gray-300">
+                            <span class="step-n"
+                                style="width:1.5rem;height:1.5rem;min-width:1.5rem;font-size:0.7rem">1</span>
+                            Busca el ícono <strong class="text-white">Spool</strong> (portapapeles azul) en tu Escritorio.
+                        </div>
+                        <div class="flex items-center gap-3 text-sm text-gray-300">
+                            <span class="step-n"
+                                style="width:1.5rem;height:1.5rem;min-width:1.5rem;font-size:0.7rem">2</span>
+                            Haz <strong class="text-white">doble clic</strong> sobre el ícono.
+                        </div>
+                        <div class="flex items-center gap-3 text-sm text-gray-300">
+                            <span class="step-n"
+                                style="width:1.5rem;height:1.5rem;min-width:1.5rem;font-size:0.7rem">3</span>
+                            El sistema se autoconfigura e inicia el navegador automáticamente.
+                        </div>
+                    </div>
+                    <div class="callout">
+                        <p class="text-xs text-gray-300">No requiere instalación adicional. El servidor y la aplicación
+                            van incluidos.</p>
+                    </div>
+                </div>
+
+                <!-- Web -->
+                <div class="card p-8 space-y-5 border border-white/10 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-white/3 rounded-full blur-2xl"></div>
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-white/5 border border-white/15 flex items-center justify-center text-2xl">
+                            🌐</div>
+                        <div>
+                            <div class="font-black text-lg text-white">Versión Web</div>
+                            <div class="text-xs text-gray-400 uppercase tracking-widest font-bold">Desde el navegador
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-center py-4">
+                        <div class="card px-5 py-3 font-mono text-sm text-cyan-400 border-cyan-500/30">
+                            http://[IP-del-servidor]/as400/app/
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3 text-sm text-gray-300">
+                            <span class="step-n"
+                                style="width:1.5rem;height:1.5rem;min-width:1.5rem;font-size:0.7rem">1</span>
+                            Abre tu navegador (Chrome, Edge, Firefox)
+                        </div>
+                        <div class="flex items-center gap-3 text-sm text-gray-300">
+                            <span class="step-n"
+                                style="width:1.5rem;height:1.5rem;min-width:1.5rem;font-size:0.7rem">2</span>
+                            Escribe la dirección del servidor en la barra de URL
+                        </div>
+                        <div class="flex items-center gap-3 text-sm text-gray-300">
+                            <span class="step-n"
+                                style="width:1.5rem;height:1.5rem;min-width:1.5rem;font-size:0.7rem">3</span>
+                            Presiona <kbd>Enter</kbd> — la pantalla de Spool aparece al instante
+                        </div>
+                    </div>
+                    <div class="callout">
+                        <p class="text-xs text-gray-300">Disponible desde cualquier PC en la red sin instalar nada. Solo
+                            necesitas un navegador.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Login -->
+            <div class="space-y-3">
+                <div class="tag">Paso 2</div>
+                <h2 class="text-5xl font-black uppercase tracking-tight">Inicio de Sesión</h2>
+                <p class="text-gray-400 max-w-2xl text-lg leading-relaxed">
+                    En ambas versiones verás la misma pantalla de login. Ingresa con tu usuario y contraseña del AS/400.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-10 items-center">
+                <div class="space-y-6">
+                    <div class="flex items-start gap-4">
+                        <div class="step-n">1</div>
+                        <div>
+                            <div class="font-bold text-white mb-1">Escribe tu usuario AS/400</div>
+                            <p class="text-sm text-gray-400">El mismo usuario que usas en el terminal verde. Ej:
+                                <kbd>TIO21GL</kbd>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="step-n">2</div>
+                        <div>
+                            <div class="font-bold text-white mb-1">Contraseña del sistema</div>
+                            <p class="text-sm text-gray-400">Tu contraseña actual del AS/400. La sesión se cifra con
+                                AES-256 antes de enviarse.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="step-n">3</div>
+                        <div>
+                            <div class="font-bold text-white mb-1">Presiona <kbd>Enter</kbd> o el botón ACCEDER</div>
+                            <p class="text-sm text-gray-400">El sistema valida tu sesión en segundos. Si las
+                                credenciales son correctas, ingresas directo al dashboard.</p>
+                        </div>
+                    </div>
+                    <div class="callout">
+                        <div class="text-xs font-bold text-cyan-400 uppercase tracking-widest mb-1">ℹ️ Nota</div>
+                        <p class="text-sm text-gray-300">El servidor AS/400 al que te conectas está configurado por el
+                            administrador. No necesitas cambiar ninguna IP ni puerto.</p>
+                    </div>
+                </div>
+                <div class="ss-frame card-glow">
+                    <img src="manual_imgs/01_login.png" alt="Pantalla de login de SPOOL Engine">
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══════════════════════════════════════════
+             CONEXIÓN Y EXTRACCIÓN DE SPOOLS
+        ═══════════════════════════════════════════ -->
+        <section id="conexion" class="max-w-6xl mx-auto px-6 py-24 space-y-16">
+            <div class="space-y-3">
+                <div class="tag">Detrás de escena</div>
+                <h2 class="text-3xl md:text-5xl font-black uppercase tracking-tight">Cómo se conecta y extrae spools</h2>
+                <p class="text-gray-400 max-w-3xl text-base md:text-lg leading-relaxed">
+                    Este manual explica <strong class="text-white">paso a paso</strong> cómo el sistema se conecta al
+                    mainframe AS/400, verifica las credenciales, obtiene la cola de spool y descarga el contenido de un
+                    reporte, sin usar terminales ni escribir comandos CL.
+                </p>
+            </div>
+
+            <!-- Paso 1: Login y sesión -->
+            <div class="card p-8 space-y-5 border-l-4 border-cyan-400">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-xl">1</div>
+                    <div>
+                        <div class="font-black text-lg text-white">Inicio de sesión (crea la sesión web)</div>
+                        <div class="text-xs text-cyan-400 uppercase tracking-widest font-bold">Login PHP · index.php</div>
+                    </div>
+                </div>
+                <ol class="list-decimal ml-5 text-gray-400 space-y-2 text-sm leading-relaxed">
+                    <li>Al enviar el formulario de login, el servidor guarda en <code>$_SESSION['as400_session']</code> el usuario, contraseña e IP del mainframe que escribiste.</li>
+                    <li>En esta fase <strong class="text-white">no se conecta aún al AS/400</strong>: la sesión queda abierta localmente.</li>
+                    <li>La <strong class="text-white">verificación real</strong> ocurre al pedir la cola: se envía la acción <code>verify_login</code> a <code>process.php</code>.</li>
+                </ol>
+            </div>
+
+            <!-- Paso 2: Bridge Python -->
+            <div class="card p-8 space-y-5 border-l-4 border-cyan-400">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-xl">2</div>
+                    <div>
+                        <div class="font-black text-lg text-white">Verificación y listado por el puente FTP</div>
+                        <div class="text-xs text-cyan-400 uppercase tracking-widest font-bold">spool_explorer.py · FTP + RCMD</div>
+                    </div>
+                </div>
+                <ol class="list-decimal ml-5 text-gray-400 space-y-2 text-sm leading-relaxed">
+                    <li><code>process.php</code> ejecuta <code>src/spool_explorer.py</code> pasándole la IP, usuario y contraseña (con <code>list_remote</code>).</li>
+                    <li>El script abre una conexión <strong class="text-white">FTP</strong> (protocolo nativo de OS/400, compatible con V5R3) usando codificación <code>latin-1</code>.</li>
+                    <li>Ejecuta el comando remoto <code>RCMD QSH CMD('system WRKSPLF ... &gt; archivo_tmp')</code> para volcar la lista de spool a un archivo en el IFS.</li>
+                    <li>Descarga ese archivo con <code>RETR</code>, lo decodifica y lo devuelve a la aplicación como JSON.</li>
+                    <li>Con esto <strong class="text-white">queda validado</strong> el par usuario/contraseña: si el login falla, aquí se muestra el error de autenticación.</li>
+                </ol>
+                <div class="callout">
+                    💡 El listado admite filtros de usuario (<code>filter_user</code>) y de nombre (<code>filter_name</code>), más paginación
+                    (<code>limit</code>/<code>offset</code>) para colas muy grandes.
+                </div>
+            </div>
+
+            <!-- Paso 3: Descarga del reporte -->
+            <div class="card p-8 space-y-5 border-l-4 border-cyan-400">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-xl">3</div>
+                    <div>
+                        <div class="font-black text-lg text-white">Descarga del contenido (CPYSPLF → QTEMP)</div>
+                        <div class="text-xs text-cyan-400 uppercase tracking-widest font-bold">fetch_remote · CPYSPLF + RETR</div>
+                    </div>
+                </div>
+                <ol class="list-decimal ml-5 text-gray-400 space-y-2 text-sm leading-relaxed">
+                    <li>Al abrir un spool, se envía <code>fetch_remote</code> con el <code>file_name</code> (y opcionalmente el número de trabajo <code>job</code> y <code>SPLNBR</code>).</li>
+                    <li>El puente ejecuta <code>CPYSPLF FILE(...) TOFILE(QTEMP/...) JOB(...) SPLNBR(...) CTLCHAR(*FCFC)</code>: copia el spool a un <strong class="text-white">archivo físico temporal en QTEMP</strong>.</li>
+                    <li>Ese archivo físico se recupera por FTP con <code>RETR QTEMP/...</code> y el contenido crudo se devuelve a PHP.</li>
+                    <li>PHP limpia las <strong class="text-white">marcas de control de carro de impresora (FCFC)</strong> para obtener texto limpio y lo convierte a UTF-8 (CP850 → UTF-8).</li>
+                </ol>
+            </div>
+
+            <!-- Paso 4: Interpretación -->
+            <div class="card p-8 space-y-5 border-l-4 border-cyan-400">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-xl">4</div>
+                    <div>
+                        <div class="font-black text-lg text-white">Interpretación y exportación</div>
+                        <div class="text-xs text-cyan-400 uppercase tracking-widest font-bold">Parser · Editor de Estructura</div>
+                    </div>
+                </div>
+                <ol class="list-decimal ml-5 text-gray-400 space-y-2 text-sm leading-relaxed">
+                    <li>El texto plano se envía a <code>process.php</code> (acción <code>parse</code>) donde el <strong class="text-white">Parser</strong> separa cada línea y sus campos.</li>
+                    <li>En el <a href="#editor" class="text-cyan-400 hover:underline">Editor de Layouts</a> defines cortes de filas y columnas para transformar el texto en una cuadrícula.</li>
+                    <li>Desde la barra de exportación puedes generar <strong class="text-white">Excel (.xlsx/.csv) y PDF</strong>; la exportación es sanitizada para evitar inyección de fórmulas.</li>
+                </ol>
+            </div>
+
+            <!-- Paso 5: Seguridad -->
+            <div class="card p-8 space-y-5 border-l-4 border-amber-400">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-xl">5</div>
+                    <div>
+                        <div class="font-black text-lg text-white">Seguridad: Usuario Puente y Gatekeeper</div>
+                        <div class="text-xs text-amber-400 uppercase tracking-widest font-bold">config/proxy.dat · config/gatekeeper.json</div>
+                    </div>
+                </div>
+                <ul class="list-disc ml-5 text-gray-400 space-y-2 text-sm leading-relaxed">
+                    <li><strong class="text-white">Usuario Puente (Proxy):</strong> si está configurado en <code>config/proxy.dat</code> (cifrado, <code>USE_PROXY</code> activo), el sistema conecta con ese usuario técnico y usa el usuario de la sesión como destino de listado (<code>list_remote</code>). Así no necesitas exponer credenciales reales.</li>
+                    <li><strong class="text-white">Gatekeeper:</strong> el PIN maestro se almacena como hash en <code>config/gatekeeper.json</code> y protege la configuración del puente y la personalización de temas.</li>
+                    <li><strong class="text-white">Sin bases de datos externas:</strong> toda la configuración vive en archivos JSON locales del servidor.</li>
+                </ul>
+                <div class="callout warn">
+                    ⚠️ Las credenciales del AS/400 solo viven en la sesión del navegador/servidor y se envían cifradas dentro de la sesión local. Nunca se almacenan en disco.
+                </div>
+            </div>
+
+            <!-- Resumen visual -->
+            <div class="card p-8 space-y-5">
+                <div class="font-black text-white uppercase tracking-widest text-sm">Flujo completo de una consulta</div>
+                <div class="overflow-x-auto">
+                    <table class="man-table w-full text-left">
+                        <thead>
+                            <tr>
+                                <th>Etapa</th>
+                                <th>Quién lo hace</th>
+                                <th>Qué comando/acción usa</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Login</td><td>index.php</td><td><code>action=login</code> → sesión local</td></tr>
+                            <tr><td>Verificación</td><td>spool_explorer.py</td><td><code>verify_login</code> · FTP</td></tr>
+                            <tr><td>Cola de spools</td><td>spool_explorer.py</td><td><code>WRKSPLF</code> → <code>RETR</code></td></tr>
+                            <tr><td>Contenido</td><td>spool_explorer.py</td><td><code>CPYSPLF</code> → <code>QTEMP</code> → <code>RETR</code></td></tr>
+                            <tr><td>Limpieza FCFC</td><td>process.php / Parser</td><td>decode CP850 → UTF-8</td></tr>
+                            <tr><td>Exportación</td><td>Editor de Estructura</td><td>Excel sanitizado / PDF</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══════════════════════════════════════════
+             DASHBOARD PRINCIPAL
+        ═══════════════════════════════════════════ -->
+        <section id="dashboard" class="max-w-6xl mx-auto px-6 py-24 space-y-16">
+            <div class="space-y-3">
+                <div class="tag">Paso 2</div>
+                <h2 class="text-5xl font-black uppercase tracking-tight">Dashboard Principal</h2>
+                <p class="text-gray-400 max-w-2xl text-lg leading-relaxed">
+                    Al ingresar verás el panel principal dividido en dos zonas: la <strong class="text-cyan-400">Cola de
+                        Spools</strong> a la izquierda y la <strong class="text-cyan-400">Visualización de
+                        Datos</strong> a la derecha.
+                </p>
+            </div>
+
+            <div class="ss-frame card-glow">
+                <img src="manual_imgs/02_dashboard.png" alt="Dashboard principal con cola de spools">
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="card p-6 space-y-3">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-white uppercase tracking-wide text-sm">Cola de Spools</h3>
+                    <p class="text-sm text-gray-400">Lista de todos tus archivos spool del AS/400. Muestra usuario,
+                        archivo, trabajo y número. El contador en verde indica cuántos hay en total.</p>
+                </div>
+                <div class="card p-6 space-y-3">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-white uppercase tracking-wide text-sm">Buscador Interno</h3>
+                    <p class="text-sm text-gray-400">Filtra la lista en tiempo real escribiendo en la barra "BUSCAR
+                        REPORTE / ARCHIVO / USUARIO...". Acepta cualquier campo de la tabla.</p>
+                </div>
+                <div class="card p-5 md:p-6 space-y-3">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-white uppercase tracking-wide text-sm">Sincronización</h3>
+                    <p class="text-xs md:text-sm text-gray-400">El botón <strong class="text-cyan-400 uppercase">Sincronizar</strong> refresca la lista desde el AS/400 al instante.</p>
+                </div>
+            </div>
+
+            <!-- Tabla de columnas -->
+            <div class="card overflow-hidden">
+                <div class="px-6 py-4 border-b border-white/5">
+                    <h3 class="font-bold uppercase tracking-widest text-sm text-gray-300">Columnas de la Cola de Spools
+                    </h3>
+                </div>
+                <table class="man-table w-full">
+                    <thead>
+                        <tr>
+                            <th class="text-left">Columna</th>
+                            <th class="text-left">Descripción</th>
+                            <th class="text-left">Ejemplo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-cyan-400 font-mono font-bold">Identificación / Reporte</td>
+                            <td>Estado del spool (R=Ready) y nombre del archivo</td>
+                            <td class="font-mono text-xs">R · QPRTSPLF</td>
+                        </tr>
+                        <tr>
+                            <td class="text-cyan-400 font-mono font-bold">Usuario</td>
+                            <td>Usuario AS/400 que generó el spool</td>
+                            <td class="font-mono text-xs">TIO21GL</td>
+                        </tr>
+                        <tr>
+                            <td class="text-cyan-400 font-mono font-bold">Archivo</td>
+                            <td>Nombre del archivo de cola (spool file name)</td>
+                            <td class="font-mono text-xs">QPRTSPLF</td>
+                        </tr>
+                        <tr>
+                            <td class="text-cyan-400 font-mono font-bold">Trabajo</td>
+                            <td>Nombre del trabajo que generó el reporte</td>
+                            <td class="font-mono text-xs">QPRTJOB</td>
+                        </tr>
+                        <tr>
+                            <td class="text-cyan-400 font-mono font-bold">Número</td>
+                            <td>Número de trabajo dentro del AS/400</td>
+                            <td class="font-mono text-xs">682261</td>
+                        </tr>
+                        <tr>
+                            <td class="text-cyan-400 font-mono font-bold">NBR</td>
+                            <td>Número de secuencia del spool file</td>
+                            <td class="font-mono text-xs">1, 2, 3...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══════════════════════════════════════════
+             VER UN REPORTE
+        ═══════════════════════════════════════════ -->
+        <section id="ver-reporte" class="max-w-6xl mx-auto px-6 py-24 space-y-16">
+            <div class="space-y-3">
+                <div class="tag">Paso 3</div>
+                <h2 class="text-5xl font-black uppercase tracking-tight">Ver un Reporte</h2>
+                <p class="text-gray-400 max-w-2xl text-lg leading-relaxed">
+                    Haz <strong class="text-white">clic sobre cualquier fila</strong> de la cola para cargar ese spool
+                    en el panel derecho. El contenido aparece en formato monoespaciado, fiel al AS/400.
+                </p>
+            </div>
+
+            <div class="ss-frame card-glow">
+                <img src="manual_imgs/04_report_view.png" alt="Visualización de reporte AS400">
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="space-y-4">
+                    <h3 class="font-bold text-white uppercase tracking-widest text-xs md:text-sm">Herramientas del reporte</h3>
+                    <div class="space-y-3">
+                        <div class="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-3 p-3 card rounded-xl">
+                            <span class="annotation">⊞ EXPANDIR</span>
+                            <span class="text-xs md:text-sm text-gray-400">Maximiza el panel derecho ocultando la cola.</span>
+                        </div>
+                        <div class="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-3 p-3 card rounded-xl">
+                            <span class="annotation">⚙ EDITOR</span>
+                            <span class="text-xs md:text-sm text-gray-400">Define columnas de exportación a Excel.</span>
+                        </div>
+                        <div class="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-3 p-3 card rounded-xl">
+                            <span class="annotation">🔍 Filtrar</span>
+                            <span class="text-xs md:text-sm text-gray-400">Busca texto dentro del reporte activo.</span>
+                        </div>
+                        <div class="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-3 p-3 card rounded-xl">
+                            <span class="annotation">🖨 Imprimir</span>
+                            <span class="text-xs md:text-sm text-gray-400">Genera una impresión/PDF de alta fidelidad.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <h3 class="font-bold text-white uppercase tracking-widest text-sm">Atajos de teclado</h3>
+                    <div class="card overflow-hidden">
+                        <table class="man-table w-full">
+                            <thead>
+                                <tr>
+                                    <th class="text-left">Atajo</th>
+                                    <th class="text-left">Función</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><kbd>Ctrl</kbd> + <kbd>M</kbd></td>
+                                    <td>Expandir / Restaurar panel de reporte</td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>↑</kbd> / <kbd>↓</kbd></td>
+                                    <td>Navegar entre filas de spools</td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>Ctrl</kbd> <kbd>+</kbd></td>
+                                    <td>Zoom in (aumentar tamaño del texto)</td>
+                                </tr>
+                                <tr>
+                                    <td><kbd>Ctrl</kbd> <kbd>−</kbd></td>
+                                    <td>Zoom out</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="callout warn">
+                        <div class="text-xs font-bold text-yellow-400 uppercase tracking-widest mb-1">⚠ Nota de zoom
+                        </div>
+                        <p class="text-sm text-gray-300">Los controles <kbd>−</kbd> <kbd>100%</kbd> <kbd>+</kbd> en la
+                            barra superior escalan toda la interfaz (sidebar + cola + visor) juntos.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══════════════════════════════════════════
+             MENÚ CONTEXTUAL
+        ═══════════════════════════════════════════ -->
+        <section id="menu-contextual" class="max-w-6xl mx-auto px-6 py-24 space-y-16">
+            <div class="space-y-3">
+                <div class="tag">Acciones Rápidas</div>
+                <h2 class="text-5xl font-black uppercase tracking-tight">Menú Contextual</h2>
+                <p class="text-gray-400 max-w-2xl text-lg leading-relaxed">
+                    Haz <strong class="text-white">clic derecho</strong> sobre cualquier fila del spool para abrir el
+                    menú de acciones directas. No necesitas abrir el reporte primero.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-10 items-center">
+                <div class="ss-frame card-glow">
+                    <img src="manual_imgs/03_context_menu.png" alt="Menú contextual del spool">
+                </div>
+                <div class="space-y-4">
+                    <h3 class="font-bold text-white uppercase tracking-widest text-sm mb-4">Opciones disponibles</h3>
+
+                    <div class="card p-4 space-y-1 border-l-2 border-cyan-500/50">
+                        <div class="font-bold text-white text-sm">🖨 Imprimir (Quick)</div>
+                        <p class="text-sm text-gray-400">Abre el reporte y lanza inmediatamente el diálogo de impresión
+                            del navegador.</p>
+                    </div>
+
+                    <div class="card p-4 space-y-1 border-l-2 border-green-500/50">
+                        <div class="font-bold text-white text-sm">📊 Excel Inteligente</div>
+                        <p class="text-sm text-gray-400">Exporta el spool a un archivo Excel (.xlsx) con columnas
+                            auto-detectadas. Descarga instantánea.</p>
+                    </div>
+
+                    <div class="card p-4 space-y-1 border-l-2 border-blue-500/50">
+                        <div class="font-bold text-white text-sm">📄 Texto Plano (RAW)</div>
+                        <p class="text-sm text-gray-400">Descarga el spool como archivo .txt exactamente como aparece en
+                            el AS/400, sin transformaciones.</p>
+                    </div>
+
+                    <div class="card p-4 space-y-1 border-l-2 border-purple-500/50">
+                        <div class="font-bold text-white text-sm">ℹ️ Propiedades Spool</div>
+                        <p class="text-sm text-gray-400">Muestra la ficha completa del spool: archivo, usuario, trabajo,
+                            número, estado y páginas totales.</p>
+                    </div>
+
+                    <div class="card p-4 space-y-1 border-l-2 border-cyan-500/50">
+                        <div class="font-bold text-white text-sm">🧰 Gestión del Spool (sección propia)</div>
+                        <p class="text-sm text-gray-400">Separador dedicado con las acciones operativas sobre el spool en
+                            el AS/400.</p>
+                    </div>
+                    <div class="grid grid-cols-1 gap-2 mt-1">
+                        <div class="card p-4 space-y-1 border-l-2 border-blue-500/50">
+                            <div class="font-bold text-white text-sm">🔄 Reimprimir</div>
+                            <p class="text-sm text-gray-400">Cambia el estado del spool a <code>*READY</code> para que el
+                                writer vuelva a procesarlo (CHGSPLFA STATUS(*READY)).</p>
+                        </div>
+                        <div class="card p-4 space-y-1 border-l-2 border-orange-500/50">
+                            <div class="font-bold text-white text-sm">⏸ Mantener (Hold)</div>
+                            <p class="text-sm text-gray-400">Pausa el spool con <code>HLDSPLF</code>. Se muestra solo si el
+                                spool no está retenido.</p>
+                        </div>
+                        <div class="card p-4 space-y-1 border-l-2 border-green-500/50">
+                            <div class="font-bold text-white text-sm">▶️ Soltar (Release)</div>
+                            <p class="text-sm text-gray-400">Libera un spool retenido con <code>RLSSPLF</code>. Solo se
+                                muestra cuando el spool está en estado HLD.</p>
+                        </div>
+                        <div class="card p-4 space-y-1 border-l-2 border-yellow-500/50">
+                            <div class="font-bold text-white text-sm">⚙️ Cambiar Propiedades…</div>
+                            <p class="text-sm text-gray-400">Modal CHGSPLFA: cambia estado, cola de salida (OUTQ),
+                                formulario (FORMS), copias (COPIES), prioridad (PRTY) y datos de usuario (USRDTA).</p>
+                        </div>
+                        <div class="card p-4 space-y-1 border-l-2 border-red-500/50">
+                            <div class="font-bold text-white text-sm">🗑 Eliminar</div>
+                            <p class="text-sm text-gray-400">Ejecuta <code>DLTSPLF</code> con confirmación previa. Acción
+                                irreversible.</p>
+                        </div>
+                    </div>
+
+                    <div class="callout mt-4">
+                        <p class="text-sm text-gray-300"><strong class="text-cyan-400">Tip:</strong> El menú se cierra
+                            automáticamente al hacer clic fuera de él. También puedes agregar usuarios a favoritos desde
+                            aquí para filtrarlos rápidamente. Las acciones en lote (Mantener / Soltar / Eliminar) están
+                            disponibles en la barra flotante al seleccionar varios spools con las casillas.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══════════════════════════════════════════
+             DASHBOARD FUNCIONAL
+        ═══════════════════════════════════════════ -->
+        <section id="dashboard" class="max-w-6xl mx-auto px-6 py-24 space-y-16">
+            <div class="space-y-3">
+                <div class="tag">Herramientas de Sistema</div>
+                <h2 class="text-5xl font-black uppercase tracking-tight">Dashboard Funcional</h2>
+                <p class="text-gray-400 max-w-2xl text-lg leading-relaxed">
+                    Analiza en vivo los spools activos. Abre el <strong class="text-white">Dashboard</strong> desde el
+                    botón de la barra lateral (sección <em>Herramientas de Sistema</em>).
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-10">
+                <div class="space-y-6">
+                    <h3 class="font-bold text-white uppercase tracking-widest text-sm mb-4">Qué incluye</h3>
+                    <div class="space-y-4">
+                        <div class="card p-4 space-y-1 border-l-2 border-cyan-500/50">
+                            <div class="font-bold text-white text-sm">📈 KPIs</div>
+                            <p class="text-sm text-gray-400">Total de reportes, páginas acumuladas, promedio de páginas y
+                                spool de mayor tamaño.</p>
+                        </div>
+                        <div class="card p-4 space-y-1 border-l-2 border-blue-500/50">
+                            <div class="font-bold text-white text-sm">👤 Actividad por Usuario</div>
+                            <p class="text-sm text-gray-400">Gráfico de barras con los 8 usuarios que más spools tienen.
+                            </p>
+                        </div>
+                        <div class="card p-4 space-y-1 border-l-2 border-green-500/50">
+                            <div class="font-bold text-white text-sm">🎯 Distribución por Estado</div>
+                            <p class="text-sm text-gray-400">Dona con leyenda: RDY, HLD, WTR, MSG, etc.</p>
+                        </div>
+                        <div class="card p-4 space-y-1 border-l-2 border-yellow-500/50">
+                            <div class="font-bold text-white text-sm">📊 Top Spools por Páginas</div>
+                            <p class="text-sm text-gray-400">Los 10 reportes más pesados del listado actual.</p>
+                        </div>
+                        <div class="card p-4 space-y-1 border-l-2 border-purple-500/50">
+                            <div class="font-bold text-white text-sm">🧬 Tipología de Reportes</div>
+                            <p class="text-sm text-gray-400">Radar con los 6 nombres de archivo más frecuentes.</p>
+                        </div>
+                        <div class="card p-4 space-y-1 border-l-2 border-orange-500/50">
+                            <div class="font-bold text-white text-sm">📦 Métricas técnicas</div>
+                            <p class="text-sm text-gray-400">Número de colas de salida y carga de red estimada (MB).</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div class="callout info">
+                        <p class="text-sm text-gray-300"><strong class="text-cyan-400">Tip:</strong> El dashboard se
+                            actualiza con cada refresco de la cola (incluido el monitor automático de 10s). Los gráficos
+                            usan la paleta de colores del tema activo.</p>
+                    </div>
+                    <div class="callout warn">
+                        <div class="text-xs font-bold text-yellow-400 uppercase tracking-widest mb-1">⚠ Requisito</div>
+                        <p class="text-sm text-gray-300">Necesita datos de spools cargados en la cola. Si aún no has
+                            consultado, presiona primero el botón de refrescar la lista.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══════════════════════════════════════════
+             PERFILES DE CONEXIÓN
+        ═══════════════════════════════════════════ -->
+        <section id="perfiles" class="max-w-6xl mx-auto px-6 py-24 space-y-16">
+            <div class="space-y-3">
+                <div class="tag">Identificación</div>
+                <h2 class="text-5xl font-black uppercase tracking-tight">Perfiles de Conexión</h2>
+                <p class="text-gray-400 max-w-2xl text-lg leading-relaxed">
+                    Guarda combinaciones de <strong class="text-white">IP + usuario + clave</strong> para entrar más
+                    rápido sin teclear cada vez. Se almacenan localmente en tu navegador.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-10">
+                <div class="space-y-4">
+                    <h3 class="font-bold text-white uppercase tracking-widest text-sm mb-4">Cómo usarlo</h3>
+                    <div class="flex items-start gap-4">
+                        <div class="step-n">1</div>
+                        <div>
+                            <div class="font-bold text-white mb-1">Completa credenciales</div>
+                            <p class="text-sm text-gray-400">En la pantalla de login escribe IP, usuario y clave.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="step-n">2</div>
+                        <div>
+                            <div class="font-bold text-white mb-1">Presiona [+]</div>
+                            <p class="text-sm text-gray-400">El botón junto al selector de perfil abre el diálogo para
+                                nombrar el perfil (ej. "Producción").</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="step-n">3</div>
+                        <div>
+                            <div class="font-bold text-white mb-1">Selecciona el perfil</div>
+                            <p class="text-sm text-gray-400">Al elegirlo en el desplegable se autocompletan IP, usuario y
+                                clave. Solo falta pulsar <kbd>Entrar</kbd>. El botón <strong class="text-white">[−]</strong>
+                                elimina el perfil seleccionado (con confirmación).</p>
+                        </div>
+                    </div>
+                    <div class="callout info">
+                        <div class="text-xs font-bold text-cyan-400 uppercase tracking-widest mb-1">ℹ Seguridad</div>
+                        <p class="text-sm text-gray-300">Las credenciales quedan guardadas solo en el localStorage de este
+                            navegador. No se transmiten ni almacenan en el servidor.</p>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div class="ss-frame card-glow">
+                        <div class="p-10 bg-black/40 rounded-2xl border border-white/10 space-y-3 font-mono text-sm">
+                            <div class="text-gray-500">USUARIO : <span class="text-white font-bold">USUARIO1</span></div>
+                            <div class="text-gray-500">CLAVE&nbsp;&nbsp; : <span class="text-white font-bold">••••••••</span></div>
+                            <div class="text-gray-500">PERFIL&nbsp; : <span class="text-cyan-400 font-bold">▾ — PRODUCCIÓN —</span></div>
+                            <div class="text-gray-600 pt-2 border-t border-white/10">Perfil cargado · Solo presiona Entrar ↵</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══════════════════════════════════════════
+             EDITOR AVANZADO
+        ═══════════════════════════════════════════ -->
+        <section id="editor" class="max-w-6xl mx-auto px-6 py-24 space-y-16">
+            <div class="space-y-3">
+                <div class="tag">Función Avanzada</div>
+                <h2 class="text-5xl font-black uppercase tracking-tight">Editor de Layouts</h2>
+                <p class="text-gray-400 max-w-2xl text-lg leading-relaxed">
+                    El <strong class="text-white">Mapeador de Layout</strong> te permite definir con precisión
+                    milimétrica cómo se separan las columnas del reporte para una exportación Excel perfecta.
+                    Imprescindible para reportes de columnas fijas.
+                </p>
+            </div>
+
+            <div class="ss-frame card-glow">
+                <img src="manual_imgs/08_editor.png" alt="Editor de layouts SPOOL Engine">
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-10">
+                <div class="space-y-6">
+                    <h3 class="font-bold text-white uppercase tracking-widest text-sm">Cómo usar el editor</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4">
+                            <div class="step-n">1</div>
+                            <div>
+                                <div class="font-bold text-white mb-1">Abre el reporte</div>
+                                <p class="text-sm text-gray-400">Haz clic sobre cualquier fila del spool para cargarlo
+                                    en el panel de visualización.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="step-n">2</div>
+                            <div>
+                                <div class="font-bold text-white mb-1">Presiona el botón EDITOR</div>
+                                <p class="text-sm text-gray-400">Ubicado en la barra superior del panel derecho, abre el
+                                    Mapeador de Layout en pantalla completa.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="step-n">3</div>
+                            <div>
+                                <div class="font-bold text-white mb-1">Haz clic para trazar divisorias</div>
+                                <p class="text-sm text-gray-400">Haz clic en el visor del reporte para colocar líneas de
+                                    corte verticales (<strong class="text-cyan-400">COLUMNAS</strong>) u horizontales
+                                    (<strong class="text-cyan-400">FILAS</strong>). Cada línea define el límite de una
+                                    columna en Excel.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="step-n">4</div>
+                            <div>
+                                <div class="font-bold text-white mb-1">Exporta a Excel</div>
+                                <p class="text-sm text-gray-400">Con las divisorias definidas, presiona <strong
+                                        class="text-green-400">TXT</strong> o <strong
+                                        class="text-green-400">EXCEL</strong> en la barra inferior. El sistema divide el
+                                    spool según tu mapa.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <h3 class="font-bold text-white uppercase tracking-widest text-sm">Controles del editor</h3>
+                    <div class="space-y-3">
+                        <div class="card p-4 flex items-center gap-4">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-sm font-bold text-cyan-400">
+                                |</div>
+                            <div>
+                                <div class="font-bold text-white text-sm">COLUMNAS</div>
+                                <p class="text-xs text-gray-400">Modo para trazar cortes verticales. Separa el reporte
+                                    en columnas de izquierda a derecha.</p>
+                            </div>
+                        </div>
+                        <div class="card p-4 flex items-center gap-4">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-sm font-bold text-cyan-400">
+                                —</div>
+                            <div>
+                                <div class="font-bold text-white text-sm">FILAS</div>
+                                <p class="text-xs text-gray-400">Modo para trazar cortes horizontales. Útil para omitir
+                                    encabezados o pie de página.</p>
+                            </div>
+                        </div>
+                        <div class="card p-4 flex items-center gap-4">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-red-500/20 border border-red-500/30 flex items-center justify-center text-sm font-bold text-red-400">
+                                ✕</div>
+                            <div>
+                                <div class="font-bold text-white text-sm">LIMPIAR</div>
+                                <p class="text-xs text-gray-400">Elimina todas las divisorias trazadas para empezar de
+                                    nuevo.</p>
+                            </div>
+                        </div>
+                        <div class="card p-4 flex items-center gap-4">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-sm font-bold text-white">
+                                ±</div>
+                            <div>
+                                <div class="font-bold text-white text-sm">AJUSTE VISUAL − / +</div>
+                                <p class="text-xs text-gray-400">Cambia el tamaño de fuente del visor del editor para
+                                    ver mejor los datos sin afectar el corte.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="callout">
+                        <div class="text-xs font-bold text-cyan-400 uppercase tracking-widest mb-1">💡 Pro Tip</div>
+                        <p class="text-sm text-gray-300">El indicador <strong class="text-white">BANDAS: X | CORTES
+                                TOTALES: Y</strong> en la esquina inferior izquierda te muestra cuántas divisorias has
+                            definido en tiempo real.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══════════════════════════════════════════
+             EXPORTAR / IMPRIMIR / PDF
+        ═══════════════════════════════════════════ -->
+        <section id="exportar" class="max-w-6xl mx-auto px-6 py-24 space-y-16">
+            <div class="space-y-3">
+                <div class="tag">Exportación</div>
+                <h2 class="text-5xl font-black uppercase tracking-tight">Exportar y Guardar PDF</h2>
+                <p class="text-gray-400 max-w-2xl text-lg leading-relaxed">
+                    Exporta cualquier reporte a Excel, TXT o PDF. Puedes hacerlo de forma individual o en masa con
+                    múltiples spools seleccionados.
+                </p>
+            </div>
+
+            <!-- Individual export -->
+            <div class="space-y-8">
+                <h3 class="text-2xl font-bold text-white uppercase tracking-tight border-l-4 border-cyan-500 pl-4">
+                    Exportación Individual</h3>
+                <div class="ss-frame card-glow">
+                    <img src="manual_imgs/09_print.png" alt="Opciones de exportación individual">
+                </div>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="card p-6 space-y-4 border-t-2 border-green-500/50">
+                        <div class="text-green-400 font-black text-xl">EXCEL</div>
+                        <p class="text-sm text-gray-400">Botón <strong class="text-white">EXCEL</strong> en la barra
+                            superior derecha. Exporta el spool activo a un archivo .xlsx con columnas inteligentes.</p>
+                        <div class="text-xs text-gray-500 font-mono">→ Descarga automática al navegador</div>
+                    </div>
+                    <div class="card p-6 space-y-4 border-t-2 border-blue-500/50">
+                        <div class="text-blue-400 font-black text-xl">TEXTO</div>
+                        <p class="text-sm text-gray-400">Botón <strong class="text-white">TEXTO</strong> en la barra
+                            superior. Descarga el spool como archivo .txt en formato RAW exacto del AS/400.</p>
+                        <div class="text-xs text-gray-500 font-mono">→ Archivo .txt con saltos de línea originales</div>
+                    </div>
+                    <div class="card p-6 space-y-4 border-t-2 border-cyan-500/50">
+                        <div class="text-cyan-400 font-black text-xl">PDF / IMPRIMIR</div>
+                        <p class="text-sm text-gray-400">Ícono de impresora <strong class="text-white">(cian, esquina
+                                superior derecha del panel)</strong>. Abre el diálogo nativo del navegador para imprimir
+                            o guardar como PDF.</p>
+                        <div class="text-xs text-gray-500 font-mono">→ Seleccionar "Guardar como PDF" en el navegador
+                        </div>
+                    </div>
+                </div>
+
+                <div class="callout">
+                    <div class="text-xs font-bold text-cyan-400 uppercase tracking-widest mb-2">🖨 Cómo guardar como PDF
+                    </div>
+                    <div class="space-y-2 text-sm text-gray-300">
+                        <div class="flex items-center gap-2"><span class="step-n"
+                                style="width:1.5rem;height:1.5rem;min-width:1.5rem;font-size:0.7rem">1</span> Haz clic
+                            en el ícono de impresora (botón cian en la esquina superior derecha del panel de reporte)
+                        </div>
+                        <div class="flex items-center gap-2"><span class="step-n"
+                                style="width:1.5rem;height:1.5rem;min-width:1.5rem;font-size:0.7rem">2</span> El sistema
+                            prepara el formato AS/400 en alta resolución (puede tardar 1-2 seg)</div>
+                        <div class="flex items-center gap-2"><span class="step-n"
+                                style="width:1.5rem;height:1.5rem;min-width:1.5rem;font-size:0.7rem">3</span> Se abre el
+                            diálogo de impresión del navegador</div>
+                        <div class="flex items-center gap-2"><span class="step-n"
+                                style="width:1.5rem;height:1.5rem;min-width:1.5rem;font-size:0.7rem">4</span> En <strong
+                                class="text-white">Destino / Impresora</strong>, selecciona <kbd>Guardar como PDF</kbd>
+                        </div>
+                        <div class="flex items-center gap-2"><span class="step-n"
+                                style="width:1.5rem;height:1.5rem;min-width:1.5rem;font-size:0.7rem">5</span> Elige la
+                            ubicación y guarda. El PDF mantiene la fuente monoespaciada del mainframe.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bulk export -->
+            <div class="space-y-8">
+                <h3 class="text-2xl font-bold text-white uppercase tracking-tight border-l-4 border-cyan-500 pl-4">
+                    Exportación Masiva (Bulk)</h3>
+                <div class="ss-frame card-glow">
+                    <img src="manual_imgs/06_bulk_bar.png" alt="Barra de acciones masivas">
+                </div>
+                <div class="grid md:grid-cols-2 gap-8 items-start">
+                    <div class="space-y-4">
+                        <h4 class="font-bold text-white uppercase tracking-widest text-sm">Seleccionar spools</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-start gap-3 text-sm text-gray-400">
+                                <span class="text-cyan-400 mt-0.5">▸</span>
+                                <span><kbd>Checkbox</kbd> individual: marca la casilla izquierda de cada fila para
+                                    seleccionarla.</span>
+                            </div>
+                            <div class="flex items-start gap-3 text-sm text-gray-400">
+                                <span class="text-cyan-400 mt-0.5">▸</span>
+                                <span><kbd>Checkbox maestro</kbd>: el checkbox en el encabezado de la tabla selecciona o
+                                    deselecciona <em>todos</em> de la vista actual.</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <h4 class="font-bold text-white uppercase tracking-widest text-sm">Acciones de la barra inferior
+                        </h4>
+                        <div class="space-y-2">
+                            <div class="card p-3 flex items-center gap-3">
+                                <span class="text-green-400 font-bold text-xs uppercase">ZIPEADO EXCEL</span>
+                                <span class="text-xs text-gray-400">Exporta todos los seleccionados a Excel y los
+                                    empaqueta en un archivo .zip</span>
+                            </div>
+                            <div class="card p-3 flex items-center gap-3">
+                                <span class="text-blue-400 font-bold text-xs uppercase">ZIPEADO TXT</span>
+                                <span class="text-xs text-gray-400">Exporta todos a texto plano y los empaqueta en un
+                                    archivo .zip</span>
+                            </div>
+                            <div class="card p-3 flex items-center gap-3">
+                                <span class="text-cyan-400 font-bold text-xs uppercase">COMPARAR</span>
+                                <span class="text-xs text-gray-400">Muestra dos reportes lado a lado para comparar
+                                    diferencias (mín. 2 seleccionados)</span>
+                            </div>
+                            <div class="card p-3 flex items-center gap-3">
+                                <span class="text-gray-400 font-bold text-xs uppercase">DESCARTAR</span>
+                                <span class="text-xs text-gray-400">Deselecciona todos y cierra la barra de acciones
+                                    masivas</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══════════════════════════════════════════
+             SIDEBAR / CONFIGURACIÓN
+        ═══════════════════════════════════════════ -->
+        <section id="configuracion" class="max-w-6xl mx-auto px-6 py-24 space-y-16">
+            <div class="space-y-3">
+                <div class="tag">Sidebar &amp; Config</div>
+                <h2 class="text-5xl font-black uppercase tracking-tight">Sidebar y Centro de Control</h2>
+                <p class="text-gray-400 max-w-2xl text-lg leading-relaxed">
+                    El sidebar se expande haciendo clic en el ícono de menú (<kbd>≡</kbd>) en la esquina superior
+                    izquierda. Contiene tu perfil, personalización y acceso al Centro de Control.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-10 items-start">
+                <div class="ss-frame card-glow">
+                    <img src="manual_imgs/05_sidebar.png" alt="Sidebar expandido">
+                </div>
+                <div class="space-y-6">
+                    <h3 class="font-bold text-white uppercase tracking-widest text-sm">Secciones del Sidebar</h3>
+
+                    <div class="space-y-3">
+                        <div class="card p-4 space-y-1">
+                            <div class="font-bold text-cyan-400 text-sm uppercase tracking-wide">MÓDULOS ACTIVOS</div>
+                            <p class="text-sm text-gray-400">Muestra tu usuario de AS/400 activo con estrella de
+                                favorito. El punto verde indica sesión en línea.</p>
+                        </div>
+                        <div class="card p-4 space-y-1">
+                            <div class="font-bold text-cyan-400 text-sm uppercase tracking-wide">PERSONALIZACIÓN</div>
+                            <p class="text-sm text-gray-400">Selector de tema de color. Cambia entre modos como
+                                Turquesa, Rojo, Naranja, etc. El cambio es inmediato y se guarda en el navegador.</p>
+                        </div>
+                        <div class="card p-4 space-y-1">
+                            <div class="font-bold text-cyan-400 text-sm uppercase tracking-wide">CONTROL DE TERMINAL
+                            </div>
+                            <p class="text-sm text-gray-400">Dos botones: ⚙ abre el <strong class="text-white">Centro de
+                                    Control</strong>. 🔒 accede a la configuración de seguridad del servidor puente.</p>
+                        </div>
+                        <div class="card p-4 space-y-1 border border-red-500/20">
+                            <div class="font-bold text-red-400 text-sm uppercase tracking-wide">CERRAR SESIÓN</div>
+                            <p class="text-sm text-gray-400">Cierra tu sesión del AS/400 y regresa a la pantalla de
+                                login. La sesión expira automáticamente por inactividad.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Centro de control -->
+            <div class="space-y-8">
+                <h3 class="text-2xl font-bold text-white uppercase tracking-tight border-l-4 border-cyan-500 pl-4">
+                    Centro de Control</h3>
+                <div class="grid md:grid-cols-2 gap-10 items-center">
+                    <div class="ss-frame card-glow">
+                        <img src="manual_imgs/07_settings.png" alt="Centro de control">
+                    </div>
+                    <div class="space-y-4">
+                        <div class="card p-5 space-y-2">
+                            <div class="font-bold text-white text-sm">📋 Gestión de Favoritos</div>
+                            <p class="text-sm text-gray-400">Guarda usuarios de AS/400 como favoritos para filtrar sus
+                                spools con un clic. Puedes exportar e importar la lista de favoritos.</p>
+                        </div>
+                        <div class="card p-5 space-y-2">
+                            <div class="font-bold text-white text-sm">⏱ Intervalo de Sincronización</div>
+                            <p class="text-sm text-gray-400">Define con qué frecuencia el sistema verifica spools nuevos
+                                automáticamente. Opciones: 10 seg, 30 seg, 1 min, 5 min.</p>
+                        </div>
+                        <div class="card p-5 space-y-2">
+                            <div class="font-bold text-white text-sm">🔔 Notificaciones Sonoras</div>
+                            <p class="text-sm text-gray-400">Activa o desactiva la alerta auditiva cuando llegan nuevos
+                                spools al sistema. El toggle cian/gris controla este comportamiento.</p>
+                        </div>
+                        <div class="card p-5 space-y-2 bg-cyan-500/5 border-cyan-500/20">
+                            <div class="font-bold text-cyan-400 text-sm">Información del Sistema</div>
+                            <div class="font-mono text-xs text-gray-400 space-y-1">
+                                <div>Versión Core: <span class="text-white">1.7.5-FINAL</span></div>
+                                <div>Mainframe Bridge: <span class="text-green-400">Conectado (V5R3M0)</span></div>
+                                <div>Crypto: <span class="text-white">AES-256 Enabled</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══════════════════════════════════════════
+             FAVORITOS
+        ═══════════════════════════════════════════ -->
+        <section id="favoritos" class="max-w-6xl mx-auto px-6 py-24 space-y-16">
+            <div class="space-y-3">
+                <div class="tag">Usuarios Favoritos</div>
+                <h2 class="text-5xl font-black uppercase tracking-tight">Favoritos y Filtrado Rápido</h2>
+                <p class="text-gray-400 max-w-2xl text-lg leading-relaxed">
+                    Guarda usuarios de AS/400 como <strong class="text-white">Favoritos</strong> para filtrar sus
+                    reportes con un solo clic desde el buscador. Ideal cuando hay múltiples usuarios en el sistema y
+                    necesitas ver solo los de tu área.
+                </p>
+            </div>
+
+            <!-- Cómo agregar favorito -->
+            <div class="space-y-8">
+                <h3 class="text-2xl font-bold text-white uppercase tracking-tight border-l-4 border-cyan-500 pl-4">Cómo
+                    agregar un usuario a Favoritos</h3>
+                <div class="grid md:grid-cols-2 gap-10 items-center">
+                    <div class="ss-frame card-glow">
+                        <img src="manual_imgs/fav_02_star.png" alt="Estrella de favorito en el tab de usuario">
+                    </div>
+                    <div class="space-y-5">
+                        <div class="flex items-start gap-4">
+                            <div class="step-n">1</div>
+                            <div>
+                                <div class="font-bold text-white mb-1">Localiza la estrella ★</div>
+                                <p class="text-sm text-gray-400">En la barra de pestañas (parte superior), cada usuario
+                                    activo tiene una <strong class="text-yellow-400">estrella ★</strong> a la derecha de
+                                    su nombre. También aparece en el sidebar junto a su perfil.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="step-n">2</div>
+                            <div>
+                                <div class="font-bold text-white mb-1">Haz clic en la estrella</div>
+                                <p class="text-sm text-gray-400">Un clic en la <strong
+                                        class="text-yellow-400">★</strong> agrega el usuario a tu lista de favoritos. La
+                                    estrella cambia de color para confirmar. El usuario queda guardado en el navegador.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="step-n">3</div>
+                            <div>
+                                <div class="font-bold text-white mb-1">También desde el menú contextual</div>
+                                <p class="text-sm text-gray-400">Haz <kbd>clic derecho</kbd> sobre cualquier fila del
+                                    spool → el menú contextual puede incluir la opción de agregar el usuario de esa fila
+                                    a favoritos directamente.</p>
+                            </div>
+                        </div>
+                        <div class="callout">
+                            <div class="text-xs font-bold text-cyan-400 uppercase tracking-widest mb-1">💡 ¿Dónde se
+                                guardan?</div>
+                            <p class="text-sm text-gray-300">Los favoritos se guardan en el <strong
+                                    class="text-white">localStorage del navegador</strong> y en el Centro de Control.
+                                Son persistentes entre sesiones mientras uses el mismo navegador y máquina.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dropdown de filtrado rápido -->
+            <div class="space-y-8">
+                <h3 class="text-2xl font-bold text-white uppercase tracking-tight border-l-4 border-cyan-500 pl-4">
+                    Filtrado Rápido desde el Dropdown</h3>
+                <div class="grid md:grid-cols-2 gap-10 items-center">
+                    <div class="space-y-5">
+                        <p class="text-gray-400">Al hacer <strong class="text-white">clic en el tab de usuario</strong>
+                            (la pestaña que muestra el nombre en la barra superior), se despliega un menú con todos tus
+                            usuarios favoritos para acceso instantáneo.</p>
+                        <div class="card overflow-hidden">
+                            <div
+                                class="px-4 py-3 border-b border-white/5 text-xs font-bold uppercase tracking-widest text-gray-500">
+                                Contenido del dropdown</div>
+                            <div class="divide-y divide-white/5">
+                                <div class="px-4 py-3 flex items-center gap-3">
+                                    <span class="text-yellow-400 text-sm">★</span>
+                                    <div>
+                                        <div class="text-xs font-bold text-gray-300 uppercase tracking-widest">FAVORITOS
+                                        </div>
+                                        <div class="text-xs text-gray-500">Encabezado de la sección de favoritos</div>
+                                    </div>
+                                </div>
+                                <div class="px-4 py-3 flex items-center gap-3">
+                                    <span class="text-cyan-400 text-sm">👤</span>
+                                    <div>
+                                        <div class="text-sm font-bold text-white">NombreUsuario</div>
+                                        <div class="text-xs text-gray-500">Clic → filtra la cola mostrando solo los
+                                            spools de ese usuario</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="callout">
+                            <div class="text-xs font-bold text-cyan-400 uppercase tracking-widest mb-1">⚡ Flujo rápido
+                            </div>
+                            <p class="text-sm text-gray-300">Clic en el tab → Clic en el usuario favorito → La cola se
+                                filtra instantáneamente mostrando <em>solo</em> los spools de ese usuario. Sin necesidad
+                                de escribir nada.</p>
+                        </div>
+                    </div>
+                    <div class="ss-frame card-glow">
+                        <img src="manual_imgs/fav_04_dropdown.png" alt="Dropdown de favoritos con filtrado rápido">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gestión: importar / exportar -->
+            <div class="space-y-8">
+                <h3 class="text-2xl font-bold text-white uppercase tracking-tight border-l-4 border-cyan-500 pl-4">
+                    Gestión de Favoritos — Importar y Exportar</h3>
+                <div class="grid md:grid-cols-2 gap-10 items-start">
+                    <div class="ss-frame card-glow">
+                        <img src="manual_imgs/fav_03_favorites_list.png" alt="Centro de control con lista de favoritos">
+                    </div>
+                    <div class="space-y-5">
+                        <p class="text-gray-400">Desde el <strong class="text-white">Centro de Control</strong> (ícono ⚙
+                            en el sidebar) puedes administrar tu lista completa de favoritos.</p>
+
+                        <div class="space-y-3">
+                            <div class="card p-4 space-y-2 border-l-2 border-cyan-500/50">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-cyan-400 font-bold text-sm">👁️ Ver spools</span>
+                                </div>
+                                <p class="text-sm text-gray-400">El ícono de ojo junto a cada usuario favorito filtra la
+                                    cola de spools directamente sin cerrar el modal.</p>
+                            </div>
+                            <div class="card p-4 space-y-2 border-l-2 border-red-500/50">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-red-400 font-bold text-sm">🗑️ Eliminar favorito</span>
+                                </div>
+                                <p class="text-sm text-gray-400">El ícono de papelera junto a cada usuario lo elimina de
+                                    la lista de favoritos permanentemente.</p>
+                            </div>
+                            <div class="card p-4 space-y-2 border-l-2 border-green-500/50">
+                                <div class="font-bold text-green-400 text-sm uppercase tracking-wide">⬆ IMPORTAR</div>
+                                <p class="text-sm text-gray-400">Carga una lista de favoritos desde un archivo JSON
+                                    exportado previamente. Útil para compartir la misma configuración entre máquinas o
+                                    usuarios del equipo.</p>
+                                <div class="text-xs text-gray-500 font-mono mt-1">→ Selecciona el archivo .json cuando
+                                    te lo pida el navegador</div>
+                            </div>
+                            <div class="card p-4 space-y-2 border-l-2 border-blue-500/50">
+                                <div class="font-bold text-blue-400 text-sm uppercase tracking-wide">⬇ EXPORTAR</div>
+                                <p class="text-sm text-gray-400">Descarga tu lista de favoritos como archivo JSON.
+                                    Guárdalo para hacer un respaldo o para importarlo en otra PC con la misma versión de
+                                    SPOOL Engine.</p>
+                                <div class="text-xs text-gray-500 font-mono mt-1">→ Descarga automática: <code
+                                        class="bg-white/5 px-1 rounded">favoritos.json</code></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══════════════════════════════════════════
+             REFERENCIA RÁPIDA
+        ═══════════════════════════════════════════ -->
+        <section class="max-w-6xl mx-auto px-6 py-24 space-y-12">
+            <div class="text-center space-y-3">
+                <h2 class="text-4xl font-black uppercase tracking-tight">Referencia Rápida</h2>
+                <p class="text-gray-500">Todo lo que necesitas saber en un vistazo</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="card overflow-hidden">
+                    <div class="px-6 py-4 border-b border-white/5 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        <span class="font-bold uppercase tracking-widest text-sm text-gray-300">Acciones del clic</span>
+                    </div>
+                    <table class="man-table w-full">
+                        <tbody>
+                            <tr>
+                                <td><kbd>Clic izquierdo</kbd> en fila</td>
+                                <td>Ver reporte en panel derecho</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>Clic derecho</kbd> en fila</td>
+                                <td>Menú contextual de acciones</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>Clic</kbd> en checkbox</td>
+                                <td>Seleccionar para exportación masiva</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>Clic</kbd> en encabezado columna</td>
+                                <td>Ordenar por esa columna (asc/desc)</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>Clic</kbd> en <strong>NBR</strong></td>
+                                <td>Ordena por número de spool</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card overflow-hidden">
+                    <div class="px-6 py-4 border-b border-white/5 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        <span class="font-bold uppercase tracking-widest text-sm text-gray-300">Formatos de
+                            exportación</span>
+                    </div>
+                    <table class="man-table w-full">
+                        <tbody>
+                            <tr>
+                                <td class="text-green-400 font-bold">Excel (.xlsx)</td>
+                                <td>Columnas detectadas + formatos numéricos limpios</td>
+                            </tr>
+                            <tr>
+                                <td class="text-blue-400 font-bold">TXT (.txt)</td>
+                                <td>Texto plano RAW, idéntico al AS/400</td>
+                            </tr>
+                            <tr>
+                                <td class="text-cyan-400 font-bold">PDF (navegador)</td>
+                                <td>Alta fidelidad, monoespaciado, sin estilos dark</td>
+                            </tr>
+                            <tr>
+                                <td class="text-green-400 font-bold">ZIP Excel</td>
+                                <td>Múltiples spools → Excel por cada uno, comprimidos</td>
+                            </tr>
+                            <tr>
+                                <td class="text-blue-400 font-bold">ZIP TXT</td>
+                                <td>Múltiples spools → TXT por cada uno, comprimidos</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 py-16 text-center space-y-4">
+        <div class="font-black text-2xl gt">Spool</div>
+        <p class="text-xs text-gray-600 uppercase tracking-[0.3em]">© 2026 AS/400 Infrastructure Explorer · Ingeniería
+            de Precisión · GLR</p>
+        <div class="flex justify-center gap-3 pt-2">
+            <span class="w-2 h-2 rounded-full bg-cyan-400/40"></span>
+            <span class="w-2 h-2 rounded-full bg-cyan-400/40"></span>
+            <span class="w-2 h-2 rounded-full bg-cyan-400/40"></span>
+        </div>
+    </footer>
+
+</body>
+
+</html>

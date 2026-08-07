@@ -1,0 +1,5 @@
+{
+    "version": "1.8.10",
+    "last_update": "2026-08-05",
+    "changelog": "Login de pantalla completa pensado para baja visi\u00f3n: la ventana terminal ahora ocupa el m\u00edn 70% del alto y hasta 1080px de ancho, con tipograf\u00eda escalada v\u00eda clamp() (t\u00edtulo hasta 4rem, campos de 1.4-2.2rem, botones 1.1-1.6rem), barra de estado anclada al fondo, subrayado de inputs m\u00e1s grueso, y textos de apoyo (selector de tema, pie de versi\u00f3n, secuencia de arranque) aumentados. Se mantiene la est\u00e9tica CRT 5250 y el alto contraste en los tres temas."
+}

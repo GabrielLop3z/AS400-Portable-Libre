@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spool Explorer | Guía de Instalación</title>
+    <script src="assets/tailwindcss.js"></script>
+    <link href="assets/fonts.css" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #00f3ff;
+            --bg: #080a0e;
+            --card: #0f1217;
+            --border: rgba(255, 255, 255, 0.06);
+        }
+        * { scroll-behavior: smooth; }
+        body {
+            font-family: 'Outfit', 'Inter', sans-serif;
+            background: var(--bg);
+            color: #e0e0e0;
+            overflow-x: hidden;
+            font-size: 14px;
+        }
+        .gt {
+            background: linear-gradient(135deg, #00f3ff 0%, #0077ff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .card:hover { border-color: rgba(0, 243, 255, 0.3); }
+        .ss-frame {
+            border-radius: 1.25rem;
+            overflow: hidden;
+            border: 1px solid rgba(0, 243, 255, 0.15);
+            box-shadow: 0 0 60px rgba(0, 243, 255, 0.08), 0 20px 60px rgba(0, 0, 0, 0.7);
+        }
+        .ss-frame img { width: 100%; display: block; }
+        .step-n {
+            width: 2.5rem; height: 2.5rem; min-width: 2.5rem;
+            border-radius: 50%; background: rgba(0, 243, 255, 0.1);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 1rem; color: var(--accent);
+        }
+        .hero-grid {
+            background-image: linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-[#080a0e]/80 backdrop-blur-xl px-8 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center">
+                <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            </div>
+            <div>
+                <div class="text-sm font-black uppercase tracking-[0.2em] gt">Spool Explorer</div>
+                <div class="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">Guía Express Portable</div>
+            </div>
+        </div>
+        <div class="hidden lg:flex gap-6 text-[11px] font-bold uppercase tracking-widest text-gray-500">
+            <a href="#requisitos" class="hover:text-cyan-400 transition-colors">Requisitos</a>
+            <a href="#proceso" class="hover:text-cyan-400 transition-colors">Proceso</a>
+            <a href="#soporte" class="hover:text-cyan-400 transition-colors">Soporte</a>
+        </div>
+    </nav>
+
+    <main class="pt-24 min-h-screen hero-grid">
+        <!-- Hero Section -->
+        <section class="max-w-4xl mx-auto px-6 py-20 text-center space-y-8 relative z-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-[10px] font-bold uppercase tracking-widest text-cyan-400 animate-pulse">
+                <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Portable v1.7.5 Stable
+            </div>
+            <h1 class="text-5xl md:text-7xl font-black tracking-tighter leading-none">
+                <span class="text-white">Instalación</span> <span class="gt">Automática</span>
+            </h1>
+            <p class="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed font-medium">
+                Puesta en marcha en un solo clic. El sistema configura automáticamente tu entorno y acceso directo con icono profesional.
+            </p>
+            <div class="flex justify-center gap-4">
+                <a href="#proceso" class="px-8 py-3 rounded-full bg-cyan-500 text-black font-black uppercase text-xs tracking-widest hover:bg-cyan-400 transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)]">Comenzar Guía</a>
+                <a href="MANUAL_WEB.html" class="px-8 py-3 rounded-full border border-white/10 text-white font-black uppercase text-xs tracking-widest hover:bg-white/5 transition-all">Manual de Usuario</a>
+            </div>
+        </section>
+
+        <!-- Requisitos -->
+        <section id="requisitos" class="max-w-6xl mx-auto px-6 py-10">
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="card p-8 space-y-4">
+                    <div class="text-3xl text-cyan-400">⚡</div>
+                    <h3 class="font-bold text-white uppercase tracking-widest text-sm">Instantáneo</h3>
+                    <p class="text-sm text-gray-400">No requiere registro ni configuración manual de base de datos.</p>
+                </div>
+                <div class="card p-8 space-y-4">
+                    <div class="text-3xl text-cyan-400">🎨</div>
+                    <h3 class="font-bold text-white uppercase tracking-widest text-sm">Icono Propio</h3>
+                    <p class="text-sm text-gray-400">El acceso directo se vincula automáticamente con el icono oficial.</p>
+                </div>
+                <div class="card p-8 space-y-4">
+                    <div class="text-3xl text-cyan-400">📂</div>
+                    <h3 class="font-bold text-white uppercase tracking-widest text-sm">Portable</h3>
+                    <p class="text-sm text-gray-400">Puedes llevar tu instalación completa en un USB y funcionará igual.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROCESO UNIFICADO -->
+        <section id="proceso" class="max-w-6xl mx-auto px-6 py-24 border-t border-white/5 space-y-16">
+            
+            <!-- PASO 1 -->
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <div class="step-n">1</div>
+                    <h2 class="text-4xl font-black text-white leading-tight uppercase tracking-tight">Copia y <span class="gt">Lanza</span></h2>
+                    <p class="text-gray-400 text-lg leading-relaxed">
+                        Copia la carpeta <code class="text-cyan-400 px-2 py-1 bg-cyan-400/10 rounded">AS400_Portable_Libre</code> a cualquier ubicación y ejecuta <strong class="text-white">Iniciar_Servidor.bat</strong>.
+                    </p>
+                    <div class="p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/20 text-sm text-cyan-200/70 italic">
+                        "El sistema detectará si es tu primera vez y configurará todo por ti."
+                    </div>
+                </div>
+                <div class="ss-frame">
+                    <img src="manual_imgs/inst_02_iniciar.png" alt="Paso 1: Lanzar Sistema">
+                </div>
+            </div>
+
+            <!-- PASO 2: MAGIA AUTOMATICA -->
+            <div class="grid md:grid-cols-2 gap-12 items-center border-t border-white/5 pt-24 mt-24">
+                <div class="ss-frame md:order-2">
+                    <img src="manual_imgs/inst_04_exito.png" alt="Icono Spool Automático">
+                </div>
+                <div class="space-y-6 md:order-1">
+                    <div class="step-n">2</div>
+                    <h2 class="text-4xl font-black text-white leading-tight uppercase tracking-tight">Icono en <span class="gt">Escritorio</span></h2>
+                    <p class="text-gray-400 text-lg leading-relaxed">
+                        Al primer inicio, el sistema crea un acceso directo llamado <strong class="text-white">Spool</strong> en tu escritorio.
+                    </p>
+                    <ul class="space-y-3">
+                        <li class="flex items-center gap-3 text-sm text-gray-300">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400"></span> <strong>Icono Premium:</strong> Portapapeles azul oficial.
+                        </li>
+                        <li class="flex items-center gap-3 text-sm text-gray-300">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400"></span> <strong>Configuración:</strong> Rutas absolutas inteligentes.
+                        </li>
+                        <li class="flex items-center gap-3 text-sm text-gray-300">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400"></span> <strong>Persistencia:</strong> No necesitas volver a abrir el .bat manual.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Troubleshooting REDUCIDO -->
+        <section id="trouble" class="max-w-6xl mx-auto px-6 py-24 border-t border-white/5 space-y-12 bg-black/20">
+            <div class="text-center space-y-4">
+                <h2 class="text-3xl font-black text-white uppercase tracking-widest italic">¿Problemas al Iniciar?</h2>
+                <p class="text-gray-400">En equipos Windows recién instalados, es posible que falte un componente de Microsoft.</p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div class="card p-6 border-red-500/20">
+                    <div class="font-black text-red-400 mb-2 uppercase">Error de Motor PHP</div>
+                    <p class="text-xs text-gray-400">Aparece si faltan las librerías C++. El programa te preguntará si deseas instalarlas presionando <strong>S</strong>.</p>
+                </div>
+                <div class="card p-6 border-cyan-500/20">
+                    <div class="font-black text-cyan-400 mb-2 uppercase">Solución Manual</div>
+                    <p class="text-xs text-gray-400">También puedes ejecutar directamente <strong class="text-white">VC_redist.x64.exe</strong> ubicado en la raíz.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ready -->
+        <section class="max-w-6xl mx-auto px-6 py-32 text-center space-y-8">
+            <div class="inline-block p-6 rounded-full bg-green-500/10 border border-green-500/20 mb-4 animate-bounce">
+                <svg class="w-12 h-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            <h2 class="text-4xl font-black text-white uppercase tracking-widest italic">¡Sistema Listo!</h2>
+            <p class="text-gray-400 max-w-xl mx-auto">Tu aplicación se abrirá sola. Úsala siempre desde tu escritorio para la mejor experiencia.</p>
+            <div class="pt-8">
+                <a href="index.php" class="px-10 py-4 rounded-full bg-white text-black font-black uppercase text-xs tracking-[0.2em] shadow-2xl hover:bg-gray-200 transition-all">Ingresar Ahora</a>
+            </div>
+        </section>
+    </main>
+
+    <footer id="soporte" class="bg-[#0b0e14] py-20 px-6 border-t border-white/5">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
+            <div>
+                <div class="text-2xl font-black gt mb-2">Ing. Gabriel Lopez Reyes</div>
+                <p class="text-gray-500 text-sm italic">Gestión eficiente de infraestructura AS/400 v1.7.5</p>
+            </div>
+            <div class="flex gap-4">
+                <div class="text-right">
+                    <div class="text-xs text-gray-500 uppercase tracking-widest font-bold">Estado del Motor</div>
+                    <div class="text-green-400 font-black text-lg">ONLINE STATION</div>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

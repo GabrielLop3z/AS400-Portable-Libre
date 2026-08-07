@@ -1,0 +1,58 @@
+{
+    "default": {
+        "name": "Default (100% AS400 Original)",
+        "fontFamily": "\"Courier\", monospace",
+        "bgColor": "#ffffff",
+        "textColor": "#000000",
+        "borderColor": "#cccccc",
+        "headerColor": "#888888"
+    },
+    "t1": {
+        "name": "Plantilla 1: Corporativa Elegante",
+        "fontFamily": "\"Courier New\", Courier, monospace",
+        "bgColor": "#F9FAFB",
+        "textColor": "#1F2937",
+        "borderColor": "#2563EB",
+        "headerColor": "#2563EB"
+    },
+    "t2": {
+        "name": "Plantilla 2: Reporte Minimalista",
+        "fontFamily": "\"Courier\", monospace",
+        "bgColor": "#FFFFFF",
+        "textColor": "#374151",
+        "borderColor": "#E5E7EB",
+        "headerColor": "#9CA3AF"
+    },
+    "t3": {
+        "name": "Plantilla 3: Finanzas / Auditoría",
+        "fontFamily": "\"Courier\", monospace",
+        "bgColor": "#FFFFFF",
+        "textColor": "#111827",
+        "borderColor": "#059669",
+        "headerColor": "#10B981"
+    },
+    "t4": {
+        "name": "Plantilla 4: Logística & Operaciones",
+        "fontFamily": "\"Courier\", monospace",
+        "bgColor": "#FFFAF0",
+        "textColor": "#1A202C",
+        "borderColor": "#D97706",
+        "headerColor": "#B45309"
+    },
+    "t5": {
+        "name": "Plantilla 5: Modo Oscuro (Premium)",
+        "fontFamily": "\"Courier\", monospace",
+        "bgColor": "#111827",
+        "textColor": "#E5E7EB",
+        "borderColor": "#374151",
+        "headerColor": "#9CA3AF"
+    },
+    "t6": {
+        "name": "Plantilla 6: Certificado Oficial",
+        "fontFamily": "\"Courier\", monospace",
+        "bgColor": "#FFFFFF",
+        "textColor": "#000000",
+        "borderColor": "#DC2626",
+        "headerColor": "#DC2626"
+    }
+}

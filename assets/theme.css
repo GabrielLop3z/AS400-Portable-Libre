@@ -1,0 +1,329 @@
+/* theme.css - Premium Theme Engine v2 (data-theme)
+   Los tokens base (:root / [data-theme]) son generados por index.php desde config/themes.json.
+   Este archivo solo agrega reglas de componentes y overrides de modo claro. */
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-family: var(--font-family-ui, 'Arial');
+}
+
+/* Glass panel */
+.glass-panel {
+    background: rgba(var(--bg-panel-rgb), 0.7);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Premium button hover */
+.premium-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-hover:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+}
+
+/* Login primary button (usa el accent del tema) */
+.btn-login-primary {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, #0f172a));
+    color: #000;
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    box-shadow: 0 10px 25px rgba(var(--accent-rgb), 0.3);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-shadow: none;
+}
+
+.btn-login-primary:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 15px 40px rgba(var(--accent-rgb), 0.5);
+    transform: scale(1.02);
+}
+
+.btn-login-primary::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -150%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transform: rotate(45deg);
+    animation: shimmer 4s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) rotate(45deg); }
+}
+
+/* Ultra Light Sync Loader (accent del tema) */
+.orb-core {
+    width: 15px;
+    height: 15px;
+    background: var(--accent);
+    border-radius: 50%;
+}
+
+.quantum-ring {
+    position: absolute;
+    inset: -5px;
+    border: 1px solid rgba(var(--accent-rgb), 0.4);
+    border-radius: 50%;
+    opacity: 0.4;
+}
+
+/* Row Tracking Glow (accent del tema) */
+#preview-content tr:hover td {
+    background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb), 0.08), transparent) !important;
+    color: var(--accent) !important;
+    transition: all 0.2s;
+}
+
+/* Typing cursor */
+.cursor-type::after {
+    content: '|';
+    animation: blink 1s infinite;
+    margin-left: 2px;
+    color: var(--accent);
+}
+
+/* Scrollbar hover con accent del tema */
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}
+
+/* ============================================================
+   SELECTS Y OPTIONS (legibilidad en todos los temas)
+   ============================================================ */
+select,
+select option {
+    background-color: var(--bg-panel);
+    color: var(--text-main);
+}
+
+/* ============================================================
+   MODO CLARO (overrides de clases semánticas de Tailwind)
+   NOTA: las clases con "/" deben escaparse como "\/" en el
+   selector, de lo contrario el CSS es inválido y se descarta.
+   ============================================================ */
+[data-theme="claro"] body,
+[data-theme="claro"] .text-white,
+[data-theme="claro"] .text-gray-100,
+[data-theme="claro"] .text-gray-200,
+[data-theme="claro"] .text-gray-300 {
+    color: var(--text-main) !important;
+}
+
+[data-theme="claro"] .text-gray-400,
+[data-theme="claro"] .text-gray-500 {
+    color: #222222 !important;
+}
+
+[data-theme="claro"] .text-gray-600,
+[data-theme="claro"] .text-gray-700 {
+    color: #000000 !important;
+}
+
+[data-theme="claro"] .text-white\/95,
+[data-theme="claro"] .text-white\/90,
+[data-theme="claro"] .text-white\/80,
+[data-theme="claro"] .text-white\/70,
+[data-theme="claro"] .text-white\/60,
+[data-theme="claro"] .text-white\/50 {
+    color: var(--text-main) !important;
+}
+
+[data-theme="claro"] .text-white\/20,
+[data-theme="claro"] .text-white\/30,
+[data-theme="claro"] .text-white\/40 {
+    color: rgba(0, 0, 0, 0.45) !important;
+}
+
+[data-theme="claro"] .bg-black\/40,
+[data-theme="claro"] .bg-black\/20,
+[data-theme="claro"] .bg-black\/60,
+[data-theme="claro"] .bg-black\/30 {
+    background-color: var(--bg-panel) !important;
+}
+
+[data-theme="claro"] .bg-black\/10 {
+    background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+[data-theme="claro"] .bg-white\/20,
+[data-theme="claro"] .bg-white\/5,
+[data-theme="claro"] .bg-white\/10 {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme="claro"] .bg-black\/80,
+[data-theme="claro"] .bg-black\/90 {
+    background-color: rgba(236, 72, 153, 0.10) !important;
+}
+
+[data-theme="claro"] .bg-black\/50 {
+    background-color: var(--bg-panel) !important;
+}
+
+[data-theme="claro"] .border-white\/5,
+[data-theme="claro"] .border-white\/10,
+[data-theme="claro"] .border-white\/20,
+[data-theme="claro"] .border-white\/30 {
+    border-color: var(--border-color) !important;
+    opacity: 1;
+}
+
+[data-theme="claro"] .glass-panel {
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="claro"] input[type="text"]:not(.term-input),
+[data-theme="claro"] input[type="password"]:not(.term-input),
+[data-theme="claro"] input[type="search"]:not(.term-input),
+[data-theme="claro"] select:not(.term-input) {
+    color: var(--text-main) !important;
+    background-color: var(--bg-panel) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Terminal AS/400 en modo claro: conserva el estilo consola (fondo transparente,
+   texto fosforo y solo linea inferior) que el override de inputs de arriba anula */
+[data-theme="claro"] .term-input {
+    color: var(--term-text) !important;
+    background-color: transparent !important;
+    border-top-color: transparent !important;
+    border-left-color: transparent !important;
+    border-right-color: transparent !important;
+    border-bottom-color: var(--term-text-dim) !important;
+}
+
+[data-theme="claro"] ::placeholder {
+    color: var(--text-muted) !important;
+}
+
+[data-theme="claro"] .term-input::placeholder {
+    color: var(--term-text-dim) !important;
+}
+
+[data-theme="claro"] .custom-scroll::-webkit-scrollbar-track {
+    background: var(--bg-main) !important;
+}
+
+[data-theme="claro"] .custom-scroll::-webkit-scrollbar-thumb {
+    background: #f4a8bd !important;
+}
+
+/* SweetAlert2 en modo claro: título/tarjetas negras y botones con texto oscuro
+   sobre los fondos rosas/ámbar/rojo definidos en cada Swal.fire() */
+[data-theme="claro"] .swal2-popup {
+    border-color: var(--border-color) !important;
+    box-shadow: 0 20px 60px rgba(236, 72, 153, 0.25) !important;
+}
+
+[data-theme="claro"] .swal2-confirm,
+[data-theme="claro"] .swal2-cancel {
+    color: #111111 !important;
+}
+
+/* Texto coloreado (azul/rojo/verde/amarillo) legible sobre fondo claro.
+   :not(:hover) respeta los estados hover que pasan a texto blanco. */
+[data-theme="claro"] .text-blue-400:not(:hover),
+[data-theme="claro"] .text-blue-500:not(:hover),
+[data-theme="claro"] .text-blue-500\/50:not(:hover) {
+    color: #1d4ed8;
+}
+
+[data-theme="claro"] .text-red-400:not(:hover),
+[data-theme="claro"] .text-red-500:not(:hover),
+[data-theme="claro"] .text-red-500\/50:not(:hover),
+[data-theme="claro"] .text-red-500\/60:not(:hover),
+[data-theme="claro"] .text-red-500\/70:not(:hover) {
+    color: #b91c1c;
+}
+
+[data-theme="claro"] .text-green-400:not(:hover),
+[data-theme="claro"] .text-green-500:not(:hover) {
+    color: #15803d;
+}
+
+[data-theme="claro"] .text-yellow-400:not(:hover),
+[data-theme="claro"] .text-yellow-500:not(:hover) {
+    color: #a16207;
+}
+
+[data-theme="claro"] #advanced-ruler-container {
+    color: var(--accent);
+}
+
+[data-theme="claro"] #advanced-editor-text,
+[data-theme="claro"] #advanced-editor-coords {
+    color: #111111;
+}
+
+/* Marca activa del botón FILAS: verde + texto blanco, igual en ambos temas */
+[data-theme="claro"] #btn-row.bg-green-500 {
+    color: #ffffff !important;
+    background-color: #22c55e !important;
+}
+
+/* ============================================================
+   BOTONES DE PLANTILLA (Editor de Estructura)
+   ============================================================ */
+.btn-template-load {
+    background: var(--accent);
+    color: var(--bg-main);
+    box-shadow: 0 4px 14px rgba(var(--accent-rgb), 0.28);
+}
+
+.btn-template-load:hover {
+    filter: brightness(1.12);
+    box-shadow: 0 6px 20px rgba(var(--accent-rgb), 0.4);
+}
+
+.btn-template-save {
+    background: #f59e0b;
+    color: #1a1104;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.28);
+}
+
+.btn-template-save:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+}
+
+/* ============================================================
+   CLASES UTILITARIAS "accent" (fallback)
+   El Play CDN local no aplica tailwind.config.theme.extend.colors,
+   por lo que text-accent / bg-accent / border-accent / shadow-accent
+   y sus variantes de opacidad nunca se generan. Estas reglas
+   explícitas restauran el acento del tema en toda la app.
+   ============================================================ */
+.bg-accent { background-color: var(--accent) !important; }
+.text-accent { color: var(--accent) !important; }
+.border-accent { border-color: var(--accent) !important; }
+.ring-accent { --tw-ring-color: var(--accent) !important; }
+.shadow-accent { box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.25) !important; }
+
+.bg-accent\/5 { background-color: rgba(var(--accent-rgb), 0.05) !important; }
+.bg-accent\/10 { background-color: rgba(var(--accent-rgb), 0.10) !important; }
+.bg-accent\/20 { background-color: rgba(var(--accent-rgb), 0.20) !important; }
+.bg-accent\/40 { background-color: rgba(var(--accent-rgb), 0.40) !important; }
+.text-accent\/50 { color: rgba(var(--accent-rgb), 0.50) !important; }
+.text-accent\/60 { color: rgba(var(--accent-rgb), 0.60) !important; }
+.text-accent\/80 { color: rgba(var(--accent-rgb), 0.80) !important; }
+.border-accent\/20 { border-color: rgba(var(--accent-rgb), 0.20) !important; }
+.border-accent\/30 { border-color: rgba(var(--accent-rgb), 0.30) !important; }
+.border-accent\/40 { border-color: rgba(var(--accent-rgb), 0.40) !important; }
+.border-accent\/50 { border-color: rgba(var(--accent-rgb), 0.50) !important; }
+.ring-accent\/5 { --tw-ring-color: rgba(var(--accent-rgb), 0.05) !important; }
+.ring-accent\/20 { --tw-ring-color: rgba(var(--accent-rgb), 0.20) !important; }
+.shadow-accent\/20 { box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.20) !important; }
+.from-accent\/5 { --tw-gradient-from: rgba(var(--accent-rgb), 0.05); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(255, 255, 255, 0)); }
+.to-accent\/5 { --tw-gradient-to: rgba(var(--accent-rgb), 0.05); }
+.via-accent { --tw-gradient-stops: var(--tw-gradient-from), var(--accent), var(--tw-gradient-to, rgba(255, 255, 255, 0)); }

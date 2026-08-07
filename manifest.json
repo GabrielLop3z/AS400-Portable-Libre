@@ -1,0 +1,17 @@
+{
+    "name": "AS400 Spool Advanced Explorer",
+    "short_name": "Spool Advanced",
+    "description": "Explorador avanzado de archivos Spool para IBM AS/400",
+    "start_url": "./index.php",
+    "display": "standalone",
+    "background_color": "#0f1115",
+    "theme_color": "#00f3ff",
+    "icons": [
+        {
+            "src": "assets/pwa-icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}

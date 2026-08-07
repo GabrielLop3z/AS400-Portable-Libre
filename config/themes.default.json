@@ -1,0 +1,44 @@
+{
+    "negro": {
+        "name": "Negro",
+        "isLight": false,
+        "bgMain": "#0b0c0e",
+        "bgPanel": "#141519",
+        "bgPanelRgb": "20, 21, 25",
+        "bgDarker": "#07080a",
+        "border": "#232529",
+        "textMain": "#f2f3f5",
+        "textMuted": "#9aa0a8",
+        "accent": "#a3aab3",
+        "accentRgb": "163, 170, 179",
+        "fontFamily": "Arial"
+    },
+    "rojo": {
+        "name": "Rojo",
+        "isLight": false,
+        "bgMain": "#1b1111",
+        "bgPanel": "#261a1a",
+        "bgPanelRgb": "38, 26, 26",
+        "bgDarker": "#120909",
+        "border": "#3d2a2a",
+        "textMain": "#f7e9e9",
+        "textMuted": "#c9a9a9",
+        "accent": "#ef4444",
+        "accentRgb": "239, 68, 68",
+        "fontFamily": "Arial"
+    },
+    "claro": {
+        "name": "Claro",
+        "isLight": true,
+        "bgMain": "#ffffff",
+        "bgPanel": "#fff5f7",
+        "bgPanelRgb": "255, 245, 247",
+        "bgDarker": "#ffe9ef",
+        "border": "#f7c6d2",
+        "textMain": "#111111",
+        "textMuted": "#6b3a48",
+        "accent": "#ec4899",
+        "accentRgb": "236, 72, 153",
+        "fontFamily": "Arial"
+    }
+}
