@@ -24,7 +24,7 @@
 
 ## 🔒 Seguridad
 - **Cifrado de Credenciales**: El usuario puente se almacena cifrado en la bóveda local.
-- **Panel Administrativo**: Acceso mediante icono de escudo `🛡️` con contraseña maestra `#6520212`.
+- **Panel Administrativo**: Acceso mediante icono de escudo `🛡️` con contraseña maestra 
 
 ---
 © 2026 Desarrollado por **<GLR \>**.
