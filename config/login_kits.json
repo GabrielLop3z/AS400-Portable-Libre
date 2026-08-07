@@ -20,6 +20,18 @@
         "minimal": {
             "name": "Minimal",
             "description": "Formulario limpio y centrado sin decoraciones"
+        },
+        "soft": {
+            "name": "Soft Claro",
+            "description": "Minimalista y amigable en tonos claros"
+        },
+        "aurora": {
+            "name": "Aurora Suave",
+            "description": "Gradientes pastel animados con tarjeta de vidrio"
+        },
+        "corporate": {
+            "name": "Corporativo Claro",
+            "description": "Marca a la izquierda y acceso a la derecha, en claro"
         }
     }
 }

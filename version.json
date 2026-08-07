@@ -1,5 +1,5 @@
 {
-    "version": "1.8.16",
+    "version": "1.8.17",
     "last_update": "2026-08-07",
-    "changelog": "Temas y colores a prueba de fallos: (1) Si config/themes.json falta, esta vacio o esta corrupto (por ejemplo sin permiso de escritura en la carpeta config), index.php y process.php ahora leen directamente la copia de fabrica config/themes.default.json, de modo que los temas 'negro', 'rojo' y 'claro' siempre se muestran con sus colores. (2) Se agrega un fallback para navegadores antiguos en el boton de login (assets/theme.css): el degradado usa una primera declaracion con colores planos que se descarta sola si el navegador soporta color-mix()."
+    "changelog": "Nuevos kits de login claros, profesionales y minimalistas (Soft Claro, Aurora Suave y Corporativo Claro): paletas amigables en tonos claros con acentos índigo/violeta, tarjeta redondeada con sombra suave, gradientes pastel animados (aurora) y diseño de dos paneles con marca (corporate). Las variables de cada kit viven solo dentro del login, sin afectar el tema de la aplicacion, y el switcher de Estilo/Tema se integra a la paleta clara."
 }
