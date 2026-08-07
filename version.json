@@ -1,5 +1,5 @@
 {
-    "version": "1.8.15",
+    "version": "1.8.16",
     "last_update": "2026-08-07",
-    "changelog": "Robustez en el auto-aprovisionamiento y correcci\u00f3n de temas en descarga fresca: (1) Si GitHub no es accesible o la descarga del runtime falla, Configurar_Entorno.bat reintenta autom\u00e1ticamente con fuentes oficiales (windows.php.net, python.org y Microsoft) mediante el nuevo Instalar_Runtime_Oficial.ps1, que tambi\u00e9n genera los php.ini de f\u00e1brica (extension_dir relativo + extensiones curl/ftp/fileinfo/gd/mbstring/openssl/zip). (2) Se corrige que en una descarga nueva de solo c\u00f3digo no aparec\u00edan los temas: index.php ahora inicializa autom\u00e1ticamente config/themes.json desde config/themes.default.json en el primer arranque, de modo que los temas 'negro', 'rojo' y 'claro' quedan disponibles de inmediato."
+    "changelog": "Temas y colores a prueba de fallos: (1) Si config/themes.json falta, esta vacio o esta corrupto (por ejemplo sin permiso de escritura en la carpeta config), index.php y process.php ahora leen directamente la copia de fabrica config/themes.default.json, de modo que los temas 'negro', 'rojo' y 'claro' siempre se muestran con sus colores. (2) Se agrega un fallback para navegadores antiguos en el boton de login (assets/theme.css): el degradado usa una primera declaracion con colores planos que se descarta sola si el navegador soporta color-mix()."
 }

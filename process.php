@@ -74,7 +74,13 @@ function themeSanitizeFont($val, $fallback = 'Arial') {
 // Carga la boveda de temas (config/themes.json)
 function loadThemes() {
     $file = __DIR__ . '/config/themes.json';
-    return (file_exists($file)) ? (json_decode(file_get_contents($file), true) ?: []) : [];
+    $themes = (file_exists($file)) ? (json_decode(file_get_contents($file), true) ?: []) : [];
+    // Fallback a la copia de fabrica si falta o esta vacia/corrupta.
+    if (empty($themes)) {
+        $default = __DIR__ . '/config/themes.default.json';
+        if (file_exists($default)) $themes = json_decode(file_get_contents($default), true) ?: [];
+    }
+    return $themes;
 }
 
 function saveThemes($themes) {
