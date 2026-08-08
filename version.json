@@ -1,5 +1,5 @@
 {
-    "version": "1.8.21",
+    "version": "1.8.22",
     "last_update": "2026-08-07",
-    "changelog": "Correcciones y más temas: (1) Reparado el acceso a 'Seguridad Gatekeeper / Configuración' que fallaba con la ruta /AS400/ (mostraba 'no existe'). (2) Comentarios & Ideas funcionales: la configuración del token se guarda una sola vez en el servidor (config/feedback.json) y aplica a todos los usuarios; se añadió config/feedback.default.json con el repositorio precargado para que el administrador solo pegue el token. (3) Modales reordenados en capas superiores para que el menú Exportar no se superponga al abrir el editor. (4) Seis temas nuevos profesionales con fuentes limpias y colores amigables: Esmeralda, Océano, Prisma, Plata, Menta y Arena."
+    "changelog": "Comentarios sin token por usuario: la sección Comentarios & Ideas ahora se envía por defecto por CORREO (mailto hacia el correo configurado en config/feedback.default.json) desde la propia aplicación de correo del usuario, sin necesidad de token en ninguna máquina. GitHub queda como canal opcional: un administrador puede guardar un token una sola vez (Configuración) para recibir issues automáticos. Se añadió el campo 'Correo de contacto' editable."
 }

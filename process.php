@@ -756,7 +756,8 @@ try {
             'success' => true,
             'configured' => !empty($cfg['token']) && !empty($cfg['owner']) && !empty($cfg['repo']),
             'owner' => $cfg['owner'] ?? '',
-            'repo' => $cfg['repo'] ?? ''
+            'repo' => $cfg['repo'] ?? '',
+            'email' => $cfg['email'] ?? ''
         ]);
         exit;
     } elseif ($action === 'save_feedback_config') {
@@ -773,15 +774,25 @@ try {
         $owner = trim((string)($input['owner'] ?? $_POST['owner'] ?? ''));
         $repo = trim((string)($input['repo'] ?? $_POST['repo'] ?? ''));
         $token = trim((string)($input['token'] ?? $_POST['token'] ?? ''));
+        $email = trim((string)($input['email'] ?? $_POST['email'] ?? ''));
         if (!preg_match('/^[A-Za-z0-9_.\-]+$/', $owner) || !preg_match('/^[A-Za-z0-9_.\-]+$/', $repo)) {
             echo json_encode(['success' => false, 'message' => 'Owner o repo inválidos.']);
             exit;
         }
-        if (strlen($token) < 10 || !preg_match('/^[A-Za-z0-9_\-]+$/', $token)) {
-            echo json_encode(['success' => false, 'message' => 'El token de GitHub no es válido.']);
+        if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            echo json_encode(['success' => false, 'message' => 'El correo de contacto no es válido.']);
             exit;
         }
-        if (!saveFeedbackConfig(['owner' => $owner, 'repo' => $repo, 'token' => $token])) {
+        if ($token !== '') {
+            if (strlen($token) < 10 || !preg_match('/^[A-Za-z0-9_\-]+$/', $token)) {
+                echo json_encode(['success' => false, 'message' => 'El token de GitHub no es válido.']);
+                exit;
+            }
+        } elseif ($email === '') {
+            echo json_encode(['success' => false, 'message' => 'Indica un token de GitHub o un correo de contacto.']);
+            exit;
+        }
+        if (!saveFeedbackConfig(['owner' => $owner, 'repo' => $repo, 'token' => $token, 'email' => $email])) {
             echo json_encode(['success' => false, 'message' => 'No se pudo escribir config/feedback.json. Verifique permisos.']);
             exit;
         }

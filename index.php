@@ -20,8 +20,8 @@ if ($requestLogout) {
 }
 
 $isLoggedIn = isset($_SESSION['as400_session']);
-$assetVer = '1.8.21';
-$appVersion = '1.8.21';
+$assetVer = '1.8.22';
+$appVersion = '1.8.22';
 $appVersionFile = __DIR__ . '/version.json';
 if (file_exists($appVersionFile)) {
     $appVersionData = json_decode(file_get_contents($appVersionFile), true);
@@ -62,6 +62,16 @@ $pdfTemplatesFile = __DIR__ . '/config/pdf_templates.json';
 if (file_exists($pdfTemplatesFile)) {
     $pdfTemplates = json_decode(file_get_contents($pdfTemplatesFile), true) ?: [];
 }
+
+// Configuración por defecto de feedback (correo, owner, repo). El token NO debe ir aquí.
+$fbDefaults = [];
+$fbDefaultsFile = __DIR__ . '/config/feedback.default.json';
+if (file_exists($fbDefaultsFile)) {
+    $fbDefaults = json_decode(file_get_contents($fbDefaultsFile), true) ?: [];
+}
+$fbEmail = htmlspecialchars((string)($fbDefaults['email'] ?? ''), ENT_QUOTES, 'UTF-8');
+$fbOwner = htmlspecialchars((string)($fbDefaults['owner'] ?? ''), ENT_QUOTES, 'UTF-8');
+$fbRepo = htmlspecialchars((string)($fbDefaults['repo'] ?? ''), ENT_QUOTES, 'UTF-8');
 
 function themeMenuButton($key, $t) {
     $accent = htmlspecialchars((string)($t['accent'] ?? '#ffffff'), ENT_QUOTES, 'UTF-8');
@@ -4708,32 +4718,39 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
             return await res.json();
         }
 
+        // Estado de la config de feedback (email por defecto, GitHub si hay token)
+        let feedbackEmail = '';
+        let feedbackGithub = false;
+
         async function loadFeedbackStatus() {
             try {
                 const res = await feedbackFetch('feedback_status');
                 const warn = document.getElementById('feedback-config-warn');
                 const ok = document.getElementById('feedback-config-ok');
-                if (res && res.success && res.configured) {
+                feedbackEmail = (res && res.email) || '';
+                feedbackGithub = !!(res && res.success && res.configured);
+                // Prefill los campos del administrador desde la config del servidor
+                if (res && res.owner && res.repo) {
+                    const o = document.getElementById('fb-owner');
+                    if (o && !o.value.trim()) o.value = res.owner;
+                    const r = document.getElementById('fb-repo');
+                    if (r && !r.value.trim()) r.value = res.repo;
+                }
+                const eml = document.getElementById('fb-email');
+                if (eml && !eml.value.trim()) eml.value = feedbackEmail;
+                const btn = document.getElementById('fb-submit-btn');
+                if (btn) btn.innerHTML = feedbackGithub ? 'ENVIAR A GITHUB' : (feedbackEmail ? 'ENVIAR POR CORREO' : 'ENVIAR');
+                if (feedbackGithub) {
                     warn.classList.add('hidden');
                     ok.classList.remove('hidden');
                     document.getElementById('feedback-target').innerText = `${res.owner}/${res.repo}`;
-                    // Prefill los campos del administrador (una vez) para que solo falte pegar el token
-                    if (res.owner) {
-                        const o = document.getElementById('fb-owner');
-                        if (o && !o.value.trim()) o.value = res.owner;
-                        const r = document.getElementById('fb-repo');
-                        if (r && !r.value.trim()) r.value = res.repo;
-                    }
+                } else if (feedbackEmail) {
+                    ok.classList.add('hidden');
+                    warn.classList.remove('hidden');
+                    warn.innerHTML = `Se enviará a <b>${feedbackEmail}</b> mediante tu aplicación de correo. El administrador puede activar GitHub (sección <b>Configuración</b>) para recibir issues automáticos.`;
                 } else {
                     ok.classList.add('hidden');
                     warn.classList.remove('hidden');
-                    // Prefill owner/repo desde la config por defecto del servidor
-                    if (res && res.owner && res.repo) {
-                        const o = document.getElementById('fb-owner');
-                        if (o && !o.value.trim()) o.value = res.owner;
-                        const r = document.getElementById('fb-repo');
-                        if (r && !r.value.trim()) r.value = res.repo;
-                    }
                 }
             } catch (e) { /* silencioso */ }
         }
@@ -4741,12 +4758,17 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
         async function saveFeedbackConfig() {
             const owner = document.getElementById('fb-owner').value.trim();
             const repo = document.getElementById('fb-repo').value.trim();
+            const email = document.getElementById('fb-email').value.trim();
             const token = document.getElementById('fb-token').value.trim();
-            if (!owner || !repo || !token) {
-                Swal.fire({ icon: 'warning', title: 'Campos incompletos', text: 'Completa Owner, Repo y Token.', background: 'var(--bg-panel)', color: 'var(--text-main)' });
+            if (!owner || !repo) {
+                Swal.fire({ icon: 'warning', title: 'Campos incompletos', text: 'Completa al menos Owner y Repo.', background: 'var(--bg-panel)', color: 'var(--text-main)' });
                 return;
             }
-            let payload = { owner, repo, token };
+            if (token === '' && email === '') {
+                Swal.fire({ icon: 'warning', title: 'Falta el destino', text: 'Indica un correo de contacto o un token de GitHub.', background: 'var(--bg-panel)', color: 'var(--text-main)' });
+                return;
+            }
+            let payload = { owner, repo, email, token };
             const ck = await feedbackFetch('check_gatekeeper');
             if (ck && ck.required) {
                 const pwd = await Swal.fire({ title: 'Acceso de Administrador', text: 'Ingrese la contraseña del Gatekeeper:', input: 'password', inputAttributes: { autocapitalize: 'off' }, showCancelButton: true, confirmButtonText: 'AUTORIZAR', background: 'var(--bg-panel)', color: 'var(--text-main)' });
@@ -4758,7 +4780,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
             Swal.close();
             if (res && res.success) {
                 document.getElementById('fb-token').value = '';
-                Swal.fire({ icon: 'success', title: 'Configuración guardada', text: 'El token quedó almacenado en config/feedback.json.', timer: 1800, showConfirmButton: false, background: 'var(--bg-panel)', color: 'var(--text-main)' });
+                Swal.fire({ icon: 'success', title: 'Configuración guardada', text: 'El destino quedó almacenado en config/feedback.json.', timer: 1800, showConfirmButton: false, background: 'var(--bg-panel)', color: 'var(--text-main)' });
                 loadFeedbackStatus();
             } else {
                 Swal.fire({ icon: 'error', title: 'Error', text: (res && res.message) || 'No se pudo guardar la configuración', background: 'var(--bg-panel)', color: 'var(--text-main)' });
@@ -4773,6 +4795,38 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
                 Swal.fire({ icon: 'warning', title: 'Campos incompletos', text: 'El título y el mensaje son obligatorios.', background: 'var(--bg-panel)', color: 'var(--text-main)' });
                 return;
             }
+            const userName = ((document.getElementById('profile-user-name') || {}).textContent || '').trim() || 'Anónimo';
+            const verTxt = Array.from(document.querySelectorAll('p')).map(p => p.textContent.trim()).find(t => /^Spool v\d/.test(t)) || '';
+            const appVer = (verTxt.replace(/^spool\s*/i, '').replace(/^v/i, '').trim()) || 'N/D';
+            const fecha = new Date().toLocaleString('es-MX');
+
+            // Ruta A: correo por defecto (sin token). Compone mailto con el cliente del usuario.
+            if (!feedbackGithub) {
+                const fbEmailInput = (document.getElementById('fb-email') || {}).value || '';
+                const targetEmail = feedbackEmail || fbEmailInput;
+                if (!targetEmail) {
+                    Swal.fire({ icon: 'warning', title: 'Destino no configurado', text: 'Pide al administrador que configure un correo o token.', background: 'var(--bg-panel)', color: 'var(--text-main)' });
+                    return;
+                }
+                const subject = `[${category.toUpperCase()}][App v${appVer}] ${title}`;
+                const body = 'Categoría: ' + category +
+                    '\nUsuario AS/400: ' + userName +
+                    '\nVersión de la aplicación: ' + appVer +
+                    '\nFecha: ' + fecha +
+                    '\n\n---\n\n' + message;
+                const mailto = 'mailto:' + encodeURIComponent(targetEmail) +
+                    '?subject=' + encodeURIComponent(stripEmoji(subject)) +
+                    '&body=' + encodeURIComponent(stripEmoji(body));
+                document.getElementById('fb-title').value = '';
+                document.getElementById('fb-message').value = '';
+                Swal.fire({
+                    icon: 'info', title: 'Abrir tu correo', text: 'Se abrirá tu aplicación de correo con el mensaje listo. Solo pulsa Enviar desde ahí.', background: 'var(--bg-panel)', color: 'var(--text-main)',
+                    confirmButtonText: 'ABRIR CORREO'
+                }).then((r) => { if (r.isConfirmed) window.location.href = mailto; });
+                return;
+            }
+
+            // Ruta B: GitHub (solo si el admin configuró token)
             Swal.fire({ title: 'Enviando a GitHub...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: 'var(--bg-panel)', color: 'var(--text-main)' });
             const res = await feedbackFetch('submit_feedback', { category, title, message });
             Swal.close();
@@ -4787,6 +4841,10 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
             } else {
                 Swal.fire({ icon: 'error', title: 'No se pudo enviar', text: (res && res.message) || 'Ocurrió un error', background: 'var(--bg-panel)', color: 'var(--text-main)' });
             }
+        }
+
+        function stripEmoji(s) {
+            return String(s).replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}]/gu, '');
         }
 
         document.addEventListener('input', function (e) {
@@ -5933,7 +5991,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
                     </div>
                     <div>
                         <h2 class="text-2xl font-bold text-white tracking-tighter">COMENTARIOS &amp; IDEAS</h2>
-                        <p class="text-gray-500 font-bold text-[13px] tracking-[0.3em] uppercase mt-1">Se envía a GitHub como issue para futuras mejoras</p>
+                        <p class="text-gray-500 font-bold text-[13px] tracking-[0.3em] uppercase mt-1">Comentarios, ideas y reportes para futuras mejoras</p>
                     </div>
                 </div>
                 <button onclick="closeFeedback()" class="p-3 bg-white/5 border border-white/10 rounded-2xl text-gray-400 hover:text-white transition-all premium-hover">&times;</button>
@@ -5941,7 +5999,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
             
             <main class="flex-1 overflow-y-auto custom-scroll p-8 space-y-6">
                 <div id="feedback-config-warn" class="hidden bg-yellow-500/10 border border-yellow-500/25 rounded-2xl p-5 text-[14px] text-yellow-200 leading-relaxed">
-                    El envío a GitHub aún no está configurado en este equipo. Un <b>administrador</b> debe guardar el token una sola vez (sección <b>Configuración</b>); a partir de ahí <b>todos los usuarios</b> podrán enviar comentarios sin necesidad de pegar nada.
+                    Tu comentario se enviará <b>por correo</b> mediante tu aplicación de correo. Un <b>administrador</b> puede activar GitHub en la sección <b>Configuración</b> para recibir issues automáticos.
                 </div>
                 <div id="feedback-config-ok" class="hidden bg-green-500/10 border border-green-500/25 rounded-2xl p-5 text-[14px] text-green-300 leading-relaxed">
                     Configuración activa: se enviará a <b id="feedback-target"></b> con tu usuario y la versión de la app.
@@ -5976,26 +6034,35 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-2">
                             <label class="text-[12px] font-bold text-gray-500 uppercase tracking-widest">Owner (usuario GitHub)</label>
-                            <input id="fb-owner" class="w-full bg-black/40 border border-white/10 text-[15px] font-bold text-white px-4 py-3 rounded-xl outline-none focus:border-indigo-400/40" placeholder="GabrielLop3z">
+                            <input id="fb-owner" value="<?= $fbOwner ?>" class="w-full bg-black/40 border border-white/10 text-[15px] font-bold text-white px-4 py-3 rounded-xl outline-none focus:border-indigo-400/40" placeholder="GabrielLop3z">
                         </div>
                         <div class="space-y-2">
                             <label class="text-[12px] font-bold text-gray-500 uppercase tracking-widest">Repo</label>
-                            <input id="fb-repo" class="w-full bg-black/40 border border-white/10 text-[15px] font-bold text-white px-4 py-3 rounded-xl outline-none focus:border-indigo-400/40" placeholder="AS400-Portable-Libre">
+                            <input id="fb-repo" value="<?= $fbRepo ?>" class="w-full bg-black/40 border border-white/10 text-[15px] font-bold text-white px-4 py-3 rounded-xl outline-none focus:border-indigo-400/40" placeholder="AS400-Portable-Libre">
                         </div>
                     </div>
-                    <div class="space-y-2 mt-4">
-                        <label class="text-[12px] font-bold text-gray-500 uppercase tracking-widest">Token (Personal Access Token, scope public_repo)</label>
-                        <div class="flex gap-2">
-                            <input id="fb-token" type="password" autocomplete="off" class="flex-1 bg-black/40 border border-white/10 text-[15px] font-bold text-white px-4 py-3 rounded-xl outline-none focus:border-indigo-400/40" placeholder="ghp_...">
+                    <div class="border-t border-white/5 pt-6">
+                        <p class="text-[12px] font-bold text-gray-500 uppercase tracking-widest mb-3">Destino de los comentarios</p>
+                        <div class="space-y-2">
+                            <label class="text-[12px] font-bold text-gray-500 uppercase tracking-widest">Correo de contacto (por defecto, sin token)</label>
+                            <input id="fb-email" type="email" value="<?= $fbEmail ?>" class="w-full bg-black/40 border border-white/10 text-[15px] font-bold text-white px-4 py-3 rounded-xl outline-none focus:border-indigo-400/40" placeholder="feedback@tu-dominio.com">
+                        </div>
+                    </div>
+                    <div class="border-t border-white/5 pt-6">
+                    <div class="mt-3">
+                        <label class="text-[12px] font-bold text-gray-500 uppercase tracking-widest">Token GitHub (opcional, para issues automáticos)</label>
+                        <div class="flex gap-2 mt-2">
+                            <input id="fb-token" type="password" autocomplete="off" class="flex-1 bg-black/40 border border-white/10 text-[15px] font-bold text-white px-4 py-3 rounded-xl outline-none focus:border-indigo-400/40" placeholder="ghp_... (sin espacios)">
                             <button onclick="saveFeedbackConfig()" class="px-5 py-3 rounded-xl text-[15px] font-bold bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500 hover:text-white transition-all uppercase tracking-widest">GUARDAR</button>
                         </div>
+                    </div>
                     </div>
                 </div>
             </main>
             
             <footer class="p-6 border-t border-white/5 flex flex-wrap justify-between gap-3 bg-black/40">
                 <button onclick="closeFeedback()" class="px-5 py-3 rounded-[1.5rem] text-[15px] font-bold bg-white/5 text-white border border-white/10 hover:bg-white/10 transition-all uppercase tracking-widest">CERRAR</button>
-                <button id="fb-submit-btn" onclick="submitFeedback()" class="px-6 py-3 rounded-[1.5rem] text-[15px] font-black bg-indigo-500 text-black hover:bg-white transition-all uppercase tracking-widest">ENVIAR A GITHUB</button>
+                <button id="fb-submit-btn" onclick="submitFeedback()" class="px-6 py-3 rounded-[1.5rem] text-[15px] font-black bg-indigo-500 text-black hover:bg-white transition-all uppercase tracking-widest">ENVIAR</button>
             </footer>
         </div>
     </div>
