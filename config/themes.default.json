@@ -1,4 +1,32 @@
 {
+    "grafito": {
+        "name": "Grafito",
+        "isLight": false,
+        "bgMain": "#0f1115",
+        "bgPanel": "#171a21",
+        "bgPanelRgb": "23, 26, 33",
+        "bgDarker": "#0a0c10",
+        "border": "#262b33",
+        "textMain": "#f2f4f8",
+        "textMuted": "#98a1b0",
+        "accent": "#6366f1",
+        "accentRgb": "99, 102, 241",
+        "fontFamily": "Inter"
+    },
+    "profesional": {
+        "name": "Profesional",
+        "isLight": true,
+        "bgMain": "#f6f7fb",
+        "bgPanel": "#ffffff",
+        "bgPanelRgb": "255, 255, 255",
+        "bgDarker": "#eef0f6",
+        "border": "#e2e6ee",
+        "textMain": "#0f172a",
+        "textMuted": "#64748b",
+        "accent": "#4f46e5",
+        "accentRgb": "79, 70, 229",
+        "fontFamily": "Inter"
+    },
     "negro": {
         "name": "Negro",
         "isLight": false,
@@ -11,7 +39,7 @@
         "textMuted": "#9aa0a8",
         "accent": "#a3aab3",
         "accentRgb": "163, 170, 179",
-        "fontFamily": "Arial"
+        "fontFamily": "Inter"
     },
     "rojo": {
         "name": "Rojo",
@@ -25,7 +53,7 @@
         "textMuted": "#c9a9a9",
         "accent": "#ef4444",
         "accentRgb": "239, 68, 68",
-        "fontFamily": "Arial"
+        "fontFamily": "Inter"
     },
     "claro": {
         "name": "Claro",
@@ -39,6 +67,6 @@
         "textMuted": "#6b3a48",
         "accent": "#ec4899",
         "accentRgb": "236, 72, 153",
-        "fontFamily": "Arial"
+        "fontFamily": "Inter"
     }
 }

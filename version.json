@@ -1,5 +1,5 @@
 {
-    "version": "1.8.19",
+    "version": "1.8.20",
     "last_update": "2026-08-07",
-    "changelog": "Seguridad y feedback: (1) Cada usuario solo ve, visualiza, edita y descarga SUS propios spools; los usuarios cuyo nombre empieza por TID o TIO conservan acceso a todos. (2) Se eliminó la opción de eliminar spools (DLTSPLF). (3) Nueva sección 'Comentarios & Ideas' que envía sugerencias/errores a GitHub como issue para futuras mejoras (configurable con token de administrador). (4) Reparada la exportación Excel/PDF/Word."
+    "changelog": "Rediseño profesional y responsivo: (1) Nuevo tema por defecto 'Grafito' (oscuro elegante con acento índigo) y tema claro corporativo 'Profesional'. (2) Nuevo kit de login 'Premium' por defecto, con el terminal 5250 y los demás kits disponibles en el switcher. (3) Header renovado con botón 'Sincronizar cola' y menú 'Exportar'. (4) Responsividad real: sidebar tipo drawer con backdrop en móvil, tablas con columnas ocultas según el ancho, modales a pantalla completa con scroll. (5) Pulido general: tipografía Inter, focus accesible, chips de estado con acento y paneles equilibrados."
 }

@@ -1,6 +1,10 @@
 {
-    "default": "terminal",
+    "default": "premium",
     "kits": {
+        "premium": {
+            "name": "Premium",
+            "description": "Tarjeta elegante con acento del tema, ideal para entornos corporativos"
+        },
         "terminal": {
             "name": "Terminal 5250",
             "description": "Terminal CRT estilo 5250 (clásico)"

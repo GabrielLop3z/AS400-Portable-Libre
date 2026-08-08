@@ -20,8 +20,8 @@ if ($requestLogout) {
 }
 
 $isLoggedIn = isset($_SESSION['as400_session']);
-$assetVer = '1.8.19';
-$appVersion = '1.8.19';
+$assetVer = '1.8.20';
+$appVersion = '1.8.20';
 $appVersionFile = __DIR__ . '/version.json';
 if (file_exists($appVersionFile)) {
     $appVersionData = json_decode(file_get_contents($appVersionFile), true);
@@ -102,7 +102,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
 
 ?>
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-login-kit="<?= htmlspecialchars($loginKits['default'] ?? 'premium', ENT_QUOTES) ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -129,20 +129,30 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
     <link href="assets/fonts.css?v=<?= $assetVer ?>" rel="stylesheet">
     <?php
         // Genera CSS de temas desde config/themes.json (fuente unica de la verdad)
-        $defaultThemeKey = 'negro';
+        $defaultThemeKey = 'grafito';
         if (!isset($themesData[$defaultThemeKey])) $defaultThemeKey = is_array($themesData) ? (array_key_first($themesData) ?? '') : '';
         // Variables de terminal CRT por tema (login + intro): texto fosforo,
         // brillo, fondo. En temas claros se oscurece el acento para contraste.
+        // Oscurece un color hex mezclandolo hacia negro.
+        function shadeHex($hex, $mixBlack = 0.55) {
+            $c = ltrim(trim((string)$hex), '#');
+            if (strlen($c) === 3) $c = $c[0].$c[0].$c[1].$c[1].$c[2].$c[2];
+            if (!preg_match('/^[0-9a-fA-F]{6}$/', $c)) return $hex;
+            $r = (int)round(hexdec(substr($c,0,2)) * (1 - $mixBlack));
+            $g = (int)round(hexdec(substr($c,2,2)) * (1 - $mixBlack));
+            $b = (int)round(hexdec(substr($c,4,2)) * (1 - $mixBlack));
+            return sprintf('#%02x%02x%02x', $r, $g, $b);
+        }
         function termVars($t) {
             $isLight = !empty($t['isLight']);
             $accent = $t['accent'] ?? '#a3aab3';
             $accentRgb = $t['accentRgb'] ?? '163, 170, 179';
             if ($isLight) {
                 return [
-                    'term-text' => '#9d174d',
-                    'term-text-dim' => 'rgba(157, 23, 77, 0.55)',
-                    'term-glow' => 'rgba(236, 72, 153, 0.30)',
-                    'term-crt-bg' => '#fdf7fa'
+                    'term-text' => shadeHex($accent, 0.5),
+                    'term-text-dim' => 'rgba(' . $accentRgb . ', 0.5)',
+                    'term-glow' => 'rgba(' . $accentRgb . ', 0.30)',
+                    'term-crt-bg' => '#fdfbfd'
                 ];
             }
             return [
@@ -187,6 +197,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
     <style id="theme-css"><?= implode("\n", $themeCssBlocks) ?></style>
     <link href="assets/theme.css?v=<?= $assetVer ?>" rel="stylesheet">
     <link href="assets/login-kits.css?v=<?= $assetVer ?>" rel="stylesheet">
+    <link href="assets/polish.css?v=<?= $assetVer ?>" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -309,7 +320,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
                 radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.38) 100%);
             animation: crt-flicker 8s infinite steps(1);
         }
-        [data-theme="claro"] .crt-overlay {
+        .theme-light .crt-overlay {
             background:
                 repeating-linear-gradient(0deg, rgba(120,20,60,0.045) 0px, rgba(120,20,60,0.045) 1px, transparent 1px, transparent 3px),
                 radial-gradient(ellipse at center, transparent 62%, rgba(120,20,60,0.12) 100%);
@@ -334,7 +345,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
             overflow: hidden;
             animation: term-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        [data-theme="claro"] .term-window {
+        .theme-light .term-window {
             box-shadow: 0 0 0 1px var(--border-color), 0 18px 60px rgba(120,20,60,0.16), inset 0 0 30px rgba(120,20,60,0.03);
         }
         @keyframes term-in {
@@ -469,6 +480,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
             if(!t) return;
             localStorage.setItem('app_theme', themeName);
             document.documentElement.setAttribute('data-theme', themeName);
+            document.documentElement.classList.toggle('theme-light', !!t.isLight);
             const labelEl = document.getElementById('current-theme-label');
             if(labelEl) labelEl.innerText = t.name || (themeName.charAt(0).toUpperCase() + themeName.slice(1));
             // Notifica para refrescar colores dinamicos (graficos, sellos, etc.)
@@ -538,8 +550,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
         });
 
         function getDefaultLineColor() {
-            const t = document.documentElement.getAttribute('data-theme') || localStorage.getItem('app_theme') || 'negro';
-            return t === 'claro' ? '#db2777' : '#00f3ff';
+            return themeColor('--accent');
         }
 
         function themeColor(cssVar = '--accent') {
@@ -752,18 +763,60 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
 
         function toggleSidebar() {
             const sidebar = document.getElementById('main-sidebar');
-            const queue = document.getElementById('spool-queue-panel');
-            sidebar.classList.toggle('sidebar-collapsed');
-            if (sidebar.classList.contains('sidebar-collapsed')) {
-                sidebar.style.display = 'none';
-            } else {
-                sidebar.style.display = 'flex';
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if (!sidebar) return;
+            const isMobile = window.matchMedia('(max-width: 1023px)').matches;
+            if (isMobile) {
+                const opening = sidebar.classList.contains('sidebar-collapsed') || sidebar.style.display === 'none';
+                sidebar.classList.remove('sidebar-collapsed');
+                sidebar.classList.toggle('open', opening);
+                sidebar.style.display = opening ? 'flex' : 'none';
+                if (backdrop) backdrop.classList.toggle('hidden', !opening);
+                return;
             }
+            sidebar.classList.toggle('sidebar-collapsed');
+            const collapsed = sidebar.classList.contains('sidebar-collapsed');
+            sidebar.style.display = collapsed ? 'none' : 'flex';
         }
+
+        function closeSidebarMobile() {
+            const sidebar = document.getElementById('main-sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if (sidebar) {
+                sidebar.classList.remove('open');
+                sidebar.style.display = 'none';
+            }
+            if (backdrop) backdrop.classList.add('hidden');
+        }
+
+        function toggleExportMenu(e) {
+            if (e) e.stopPropagation();
+            const menu = document.getElementById('export-menu');
+            if (menu) menu.classList.toggle('hidden');
+        }
+
+        function closeExportMenu() {
+            const menu = document.getElementById('export-menu');
+            if (menu) menu.classList.add('hidden');
+        }
+
+        // Cerrar menús al hacer clic fuera y el drawer al elegir una acción en móvil
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('export-menu');
+            if (menu && !menu.classList.contains('hidden') && !e.target.closest('#export-menu, #export-menu-btn')) {
+                closeExportMenu();
+            }
+            const sidebar = document.getElementById('main-sidebar');
+            if (!sidebar || !sidebar.classList.contains('open')) return;
+            const t = e.target;
+            if (t.closest && t.closest('button[onclick*="toggleSidebar"]')) return;
+            if (t.closest && (t.closest('#theme-menu-btn') || t.closest('#theme-menu-items'))) return;
+            if (t.closest && (t.closest('#main-sidebar button') || t.closest('#main-sidebar a'))) closeSidebarMobile();
+        });
 
         // Apply theme immediately to avoid flash
         const storedTheme = localStorage.getItem('app_theme');
-        const savedTheme = (storedTheme && themesApp[storedTheme]) ? storedTheme : 'negro';
+        const savedTheme = (storedTheme && themesApp[storedTheme]) ? storedTheme : 'grafito';
         applyAppTheme(savedTheme);
         window.addEventListener('DOMContentLoaded', () => applyAppTheme(savedTheme));
 
@@ -1155,6 +1208,9 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
         }
     </script>
 
+    <!-- Backdrop para el drawer de la barra lateral en móvil -->
+    <div id="sidebar-backdrop" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[55] lg:hidden" onclick="closeSidebarMobile()" aria-hidden="true"></div>
+
     <!-- Left Sidebar -->
     <aside id="main-sidebar" class="no-print w-full lg:w-72 bg-[var(--bg-panel)] flex flex-col border-b lg:border-b-0 lg:border-r border-white/5 h-auto max-h-[40vh] lg:max-h-full lg:h-full flex-shrink-0 z-[20] transition-all duration-300 ease-in-out overflow-hidden relative glass-panel sidebar-collapsed" style="display: none;">
         <!-- Decoration -->
@@ -1213,7 +1269,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
                     <button onclick="toggleThemeMenu(event)" class="w-full h-12 flex items-center justify-between text-[15px] bg-black/40 border border-white/10 rounded-xl px-4 text-gray-300 hover:text-accent hover:border-accent/40 transition-all shadow-inner premium-hover" id="theme-menu-btn">
                         <div class="flex items-center gap-3">
                             <span class="w-2.5 h-2.5 rounded-full bg-accent shadow-accent"></span>
-                            <span id="current-theme-label" class="font-bold uppercase tracking-widest text-[15px]">Negro</span>
+                            <span id="current-theme-label" class="font-bold uppercase tracking-widest text-[15px]"><?= htmlspecialchars($themesData[$defaultThemeKey]['name'] ?? 'Grafito') ?></span>
                         </div>
                         <svg class="w-4 h-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
@@ -1327,11 +1383,31 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                     SINCRONIZAR COLA
                 </button>
-                <div class="flex gap-1.5 ml-2">
-                    <button onclick="exportData('txt')" class="bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 px-5 py-2.5 rounded-xl text-[15px] font-bold transition-all premium-hover uppercase">Texto</button>
-                    <button onclick="exportData('word')" class="bg-[#2563eb]/20 hover:bg-[#2563eb]/40 border border-[#2563eb]/40 text-blue-400 px-5 py-2.5 rounded-xl text-[15px] font-bold transition-all premium-hover uppercase">Word</button>
-                    <button onclick="exportData('pdf')" class="bg-[#dc2626]/20 hover:bg-[#dc2626]/40 border border-[#dc2626]/40 text-red-400 px-5 py-2.5 rounded-xl text-[15px] font-bold transition-all premium-hover uppercase">PDF</button>
-                    <button onclick="exportData('excel')" class="bg-[#166534]/20 hover:bg-[#166534]/40 border border-[#166534]/40 text-green-400 px-5 py-2.5 rounded-xl text-[15px] font-bold transition-all premium-hover uppercase">Excel</button>
+                <div class="relative ml-1">
+                    <button id="export-menu-btn" onclick="toggleExportMenu(event)" class="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 px-4 py-2.5 rounded-xl text-[15px] font-bold transition-all premium-hover uppercase" title="Exportar cola en varios formatos">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        <span class="hidden sm:inline">Exportar</span>
+                        <svg class="w-3.5 h-3.5 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div id="export-menu" class="hidden absolute top-full right-0 mt-2 w-52 bg-[var(--bg-panel)] border border-[var(--border-color)] rounded-xl shadow-[0_16px_48px_rgba(0,0,0,0.4)] overflow-hidden z-[100] animate-fade-in-up">
+                        <div class="px-4 py-2.5 text-[11px] font-bold text-gray-500 uppercase tracking-[0.2em] bg-black/30 border-b border-white/5">Exportar Cola</div>
+                        <button onclick="exportData('txt'); closeExportMenu()" class="w-full flex items-center gap-3 px-4 py-3 text-left text-[14px] font-bold text-gray-300 hover:bg-accent/10 hover:text-accent transition-all uppercase">
+                            <svg class="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Texto
+                        </button>
+                        <button onclick="exportData('word'); closeExportMenu()" class="w-full flex items-center gap-3 px-4 py-3 text-left text-[14px] font-bold text-gray-300 hover:bg-accent/10 hover:text-accent transition-all uppercase">
+                            <svg class="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Word
+                        </button>
+                        <button onclick="exportData('pdf'); closeExportMenu()" class="w-full flex items-center gap-3 px-4 py-3 text-left text-[14px] font-bold text-gray-300 hover:bg-accent/10 hover:text-accent transition-all uppercase">
+                            <svg class="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            PDF
+                        </button>
+                        <button onclick="exportData('excel'); closeExportMenu()" class="w-full flex items-center gap-3 px-4 py-3 text-left text-[14px] font-bold text-gray-300 hover:bg-accent/10 hover:text-accent transition-all uppercase">
+                            <svg class="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Excel
+                        </button>
+                    </div>
                 </div>
             </div>
         </header>

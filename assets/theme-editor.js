@@ -23,7 +23,7 @@ let teGkRequired = false;
 let teBaseThemeKey = null;
 
 function currentThemeKey() {
-    return document.documentElement.getAttribute('data-theme') || localStorage.getItem('app_theme') || 'negro';
+    return document.documentElement.getAttribute('data-theme') || localStorage.getItem('app_theme') || 'grafito';
 }
 
 async function openThemeEditor() {

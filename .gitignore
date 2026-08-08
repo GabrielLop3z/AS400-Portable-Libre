@@ -40,3 +40,6 @@ php_errors.log
 # --- Python (cache de bytecode) ---
 __pycache__/
 *.pyc
+
+# --- Depuración del login (se regenera en cada petición) ---
+/user_debug.txt
