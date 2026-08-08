@@ -20,8 +20,8 @@ if ($requestLogout) {
 }
 
 $isLoggedIn = isset($_SESSION['as400_session']);
-$assetVer = '1.9.20';
-$appVersion = '1.9.20';
+$assetVer = '1.9.21';
+$appVersion = '1.9.21';
 $appVersionFile = __DIR__ . '/version.json';
 if (file_exists($appVersionFile)) {
     $appVersionData = json_decode(file_get_contents($appVersionFile), true);
@@ -47,6 +47,22 @@ if (file_exists($themesFile)) {
 // directamente la copia de fabrica.
 if (empty($themesData) && file_exists($themesDefault)) {
     $themesData = json_decode(file_get_contents($themesDefault), true) ?: [];
+}
+// Migracion de generacion: themes.json es config de instancia (no se pisa en
+// las actualizaciones). Si aun contiene temas de la generacion anterior
+// (CRT: 'negro'/'rojo') y no existe el nuevo 'medio', se resiembra una sola
+// vez desde themes.default.json para que aparezca el set profesional unificado.
+if (!empty($themesData) && empty($themesData['medio']) && file_exists($themesDefault)) {
+    $legacyHits = ['negro', 'rojo', 'claro'];
+    $isLegacy = false;
+    foreach ($legacyHits as $lk) { if (isset($themesData[$lk])) { $isLegacy = true; break; } }
+    if ($isLegacy) {
+        $fresh = json_decode(file_get_contents($themesDefault), true) ?: [];
+        if (!empty($fresh)) {
+            $themesData = $fresh;
+            @file_put_contents($themesFile, json_encode($fresh, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+        }
+    }
 }
 // Kits de pantalla de inicio (estilos de login intercambiables).
 $loginKits = [];

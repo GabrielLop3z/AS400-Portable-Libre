@@ -1,5 +1,5 @@
 {
-    "version": "1.9.20",
+    "version": "1.9.21",
     "last_update": "2026-08-08",
-    "changelog": "Sistema de temas unificado y profesional. Login y aplicación ahora comparten la misma paleta: los estilos de login (Premium, Vidrio, Corporativo, Aurora, Minimal, etc.) derivan sus colores del tema activo y ya no usan paletas fijas. Se añadieron tokens derivados del acento (--accent-contrast, --accent-strong, --accent-soft, --font-reader) para botones y textos legibles en cualquier tema claro u oscuro. Nuevo set de temas profesionales y distintos (Medio, Grafito, Océano, Esmeralda, Prisma, Rosa; Profesional, Plata, Menta, Rosa Claro, Arena) y modo 'Automático' que sigue claro/oscuro del sistema. Se eliminaron los temas y los kits de login tipo terminal/CRT (terminal, matrix). Lectura de spool con fuente legible."
+    "changelog": "Correccion: la lista de temas no se actualizaba en instalaciones existentes. config/themes.json es de instancia y no se pisa en las actualizaciones, por lo que seguian visibles los temas viejos (rojo, negro, claro). Ahora, al detectar esa generacion vieja (sin el tema 'medio' y con temas CRT 'negro'/'rojo'), la aplicacion resiembra automaticamente el set profesional unificado desde themes.default.json. Se mantiene el resto del sistema de temas unificado de 1.9.20."
 }
