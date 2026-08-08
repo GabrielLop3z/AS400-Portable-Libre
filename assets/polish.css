@@ -6,6 +6,55 @@
    por lo que funcionan en temas oscuros y claros.
    ============================================================ */
 
+/* ---------- Lectura de reportes spool ---------- */
+#preview-content,
+.reader {
+    font-family: var(--font-reader, 'JetBrains Mono'), monospace;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    letter-spacing: 0.012em;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+/* ---------- Botones unificados (token accent-contrast) ---------- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: var(--accent);
+    color: var(--accent-contrast);
+    border: none;
+    border-radius: 0.75rem;
+    padding: 0.6rem 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(var(--accent-rgb), 0.25);
+    transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+.btn:hover {
+    background: var(--accent-strong);
+    transform: translateY(-1px);
+    box-shadow: 0 12px 26px rgba(var(--accent-rgb), 0.34);
+}
+.btn-ghost {
+    background: rgba(var(--accent-rgb), 0.10);
+    color: var(--accent);
+    box-shadow: none;
+}
+.btn-ghost:hover {
+    background: rgba(var(--accent-rgb), 0.18);
+    color: var(--accent-strong);
+    box-shadow: none;
+}
+.btn-danger {
+    background: #b91c1c;
+    color: #ffffff;
+}
+.btn-danger:hover { background: #991b1b; }
+
 /* ---------- Base / Tipografía ---------- */
 body {
     font-family: var(--font-family-ui, 'Inter'), 'Outfit', sans-serif;

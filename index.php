@@ -20,8 +20,8 @@ if ($requestLogout) {
 }
 
 $isLoggedIn = isset($_SESSION['as400_session']);
-$assetVer = '1.8.22';
-$appVersion = '1.8.22';
+$assetVer = '1.9.20';
+$appVersion = '1.9.20';
 $appVersionFile = __DIR__ . '/version.json';
 if (file_exists($appVersionFile)) {
     $appVersionData = json_decode(file_get_contents($appVersionFile), true);
@@ -77,6 +77,11 @@ function themeMenuButton($key, $t) {
     $accent = htmlspecialchars((string)($t['accent'] ?? '#ffffff'), ENT_QUOTES, 'UTF-8');
     $name = strtoupper(htmlspecialchars((string)($t['name'] ?? $key), ENT_QUOTES, 'UTF-8'));
     return '<button onclick="applyAppTheme(\'' . htmlspecialchars($key, ENT_QUOTES, 'UTF-8') . '\')" class="w-full text-left px-5 py-3 text-[15px] font-bold text-gray-400 hover:bg-white/5 hover:text-[' . $accent . '] flex items-center gap-3 transition-all"><span class="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_' . $accent . ']" style="background:' . $accent . '"></span> ' . $name . '</button>';
+}
+
+// Botón "Automático": sigue la preferencia clara/oscura del sistema operativo.
+function themeMenuAutoButton() {
+    return '<button onclick="applyAppTheme(\'auto\')" class="w-full text-left px-5 py-3 text-[15px] font-bold text-gray-400 hover:bg-white/5 flex items-center gap-3 transition-all"><span class="w-2.5 h-2.5 rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(var(--accent-rgb),0.7)]" style="background:linear-gradient(135deg,#2b7df6,#f472b6)"></span> AUTOMÁTICO</button>';
 }
 
 function loginKitButton($key, $k) {
@@ -139,7 +144,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
     <link href="assets/fonts.css?v=<?= $assetVer ?>" rel="stylesheet">
     <?php
         // Genera CSS de temas desde config/themes.json (fuente unica de la verdad)
-        $defaultThemeKey = 'grafito';
+        $defaultThemeKey = 'medio';
         if (!isset($themesData[$defaultThemeKey])) $defaultThemeKey = is_array($themesData) ? (array_key_first($themesData) ?? '') : '';
         // Variables de terminal CRT por tema (login + intro): texto fosforo,
         // brillo, fondo. En temas claros se oscurece el acento para contraste.
@@ -185,14 +190,53 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
             }
             return $currentRgb === '' ? $hex : $currentRgb;
         }
+        // Componentes RGB (0-255) de un hex valido, o null.
+        function hexRgbArr($hex) {
+            $c = ltrim(trim((string)$hex), '#');
+            if (strlen($c) === 3) $c = $c[0].$c[0].$c[1].$c[1].$c[2].$c[2];
+            if (!preg_match('/^[0-9a-fA-F]{6}$/', $c)) return null;
+            return [hexdec(substr($c,0,2)), hexdec(substr($c,2,2)), hexdec(substr($c,4,2))];
+        }
+        // Luminancia relativa WCAG de un hex (0..1).
+        function hexLuminance($hex) {
+            $a = hexRgbArr($hex);
+            if (!$a) return 0.5;
+            $lin = function ($v) { $s = $v / 255; return $s <= 0.03928 ? $s / 12.92 : pow(($s + 0.055) / 1.055, 2.4); };
+            return 0.2126 * $lin($a[0]) + 0.7152 * $lin($a[1]) + 0.0722 * $lin($a[2]);
+        }
+        // Texto legible sobre un color: usa el extremo que maximiza el contraste.
+        // Umbral derivado de WCAG (luminancia ~0.18): garantiza contraste >= ~4.4:1
+        // para cualquier acento, claro u oscuro.
+        function contrastText($hex) {
+            return hexLuminance($hex) > 0.18 ? '#0b0c0e' : '#ffffff';
+        }
+        // Mezcla un hex con otro por peso (0-1 del segundo color).
+        function mixHex($hex, $target, $weight) {
+            $a = hexRgbArr($hex); $b = hexRgbArr($target);
+            if (!$a || !$b) return $hex;
+            $w = max(0, min(1, $weight));
+            $out = [];
+            for ($i = 0; $i < 3; $i++) { $out[$i] = (int)round($a[$i] * (1 - $w) + $b[$i] * $w); }
+            return sprintf('#%02x%02x%02x', $out[0], $out[1], $out[2]);
+        }
+        // Variante "fuerte" del acento para hover: oscurece si es claro, aclara si es oscuro.
+        function accentStrong($hex) {
+            return hexLuminance($hex) > 0.45 ? mixHex($hex, '#000000', 0.20) : mixHex($hex, '#ffffff', 0.18);
+        }
         // Construye las variables CSS de un tema (reutilizable para :root y [data-theme]).
         function themeVars($t) {
             $tv = termVars($t);
             $font = $t['fontFamily'] ?? 'Arial';
+            $readerFont = $t['readerFont'] ?? 'JetBrains Mono';
+            $accent = $t['accent'] ?? '#0b0c0e';
             return ' --bg-main:' . ($t['bgMain'] ?? '#0b0c0e') . '; --bg-panel:' . ($t['bgPanel'] ?? '#141519') . '; --bg-panel-rgb:' . themeRgb($t['bgPanel'] ?? '', ($t['bgPanelRgb'] ?? '')) . '; --bg-darker:' . ($t['bgDarker'] ?? '#07080a') . ';'
-                . ' --border-color:' . ($t['border'] ?? '#232529') . '; --text-main:' . ($t['textMain'] ?? '#f2f3f5') . '; --text-muted:' . ($t['textMuted'] ?? '#9aa0a8') . ';'
-                . ' --accent:' . ($t['accent'] ?? '#a3aab3') . '; --accent-rgb:' . themeRgb($t['accent'] ?? '', ($t['accentRgb'] ?? '')) . ';'
+                . ' --border-color:' . ($t['border'] ?? '#232529') . '; --border-strong:' . mixHex($t['border'] ?? '#232529', '#ffffff', 0.18) . '; --surface:' . ($t['bgPanel'] ?? '#141519') . '; --text-main:' . ($t['textMain'] ?? '#f2f3f5') . '; --text-muted:' . ($t['textMuted'] ?? '#9aa0a8') . ';'
+                . ' --accent:' . $accent . '; --accent-rgb:' . themeRgb($t['accent'] ?? '', ($t['accentRgb'] ?? '')) . ';'
+                . ' --accent-contrast:' . (($t['accentContrast'] ?? '') !== '' ? $t['accentContrast'] : contrastText($accent)) . ';'
+                . ' --accent-strong:' . accentStrong($accent) . ';'
+                . ' --accent-soft:' . 'rgba(' . themeRgb($t['accent'] ?? '', ($t['accentRgb'] ?? '')) . ', 0.12)' . ';'
                 . ' --font-family-ui:' . $font . ';'
+                . ' --font-reader:' . $readerFont . ';'
                 . ' --term-text:' . $tv['term-text'] . '; --term-text-dim:' . $tv['term-text-dim'] . '; --term-glow:' . $tv['term-glow'] . '; --term-crt-bg:' . $tv['term-crt-bg'] . ';';
         }
         $themeCssBlocks = [];
@@ -485,16 +529,34 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
         const themesApp = <?= json_encode($themesData, JSON_PRETTY_PRINT) ?>;
         const loginKitsApp = <?= json_encode($loginKits, JSON_PRETTY_PRINT) ?>;
 
+        // Temas usados por el modo "Automático" segun la preferencia del SO.
+        const AUTO_THEME_DARK  = 'grafito';
+        const AUTO_THEME_LIGHT = 'profesional';
+        function autoThemeFor() {
+            return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+                ? AUTO_THEME_DARK : AUTO_THEME_LIGHT;
+        }
         function applyAppTheme(themeName) {
-            const t = themesApp[themeName];
-            if(!t) return;
-            localStorage.setItem('app_theme', themeName);
-            document.documentElement.setAttribute('data-theme', themeName);
+            const choice = (themeName === 'auto') ? 'auto' : themeName;
+            const resolved = (choice === 'auto') ? autoThemeFor() : choice;
+            const t = themesApp[resolved];
+            if (!t) return;
+            try { localStorage.setItem('app_theme', choice); } catch (e) {}
+            document.documentElement.setAttribute('data-theme', resolved);
+            document.documentElement.setAttribute('data-theme-choice', choice);
             document.documentElement.classList.toggle('theme-light', !!t.isLight);
             const labelEl = document.getElementById('current-theme-label');
-            if(labelEl) labelEl.innerText = t.name || (themeName.charAt(0).toUpperCase() + themeName.slice(1));
+            const label = (choice === 'auto') ? 'Automático' : (t.name || (resolved.charAt(0).toUpperCase() + resolved.slice(1)));
+            if (labelEl) labelEl.innerText = label;
             // Notifica para refrescar colores dinamicos (graficos, sellos, etc.)
-            document.dispatchEvent(new CustomEvent('app:themechange', { detail: themeName }));
+            document.dispatchEvent(new CustomEvent('app:themechange', { detail: resolved, choice: choice }));
+        }
+        // Si el usuario eligio "Automático", reacciona en vivo al cambio claro/oscuro del SO.
+        function refreshAutoTheme() {
+            try { if (localStorage.getItem('app_theme') === 'auto') applyAppTheme('auto'); } catch (e) {}
+        }
+        if (window.matchMedia) {
+            try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', refreshAutoTheme); } catch (e) {}
         }
 
         function applyLoginKit(kitId) {
@@ -826,7 +888,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
 
         // Apply theme immediately to avoid flash
         const storedTheme = localStorage.getItem('app_theme');
-        const savedTheme = (storedTheme && themesApp[storedTheme]) ? storedTheme : 'grafito';
+        const savedTheme = (storedTheme === 'auto' || (storedTheme && themesApp[storedTheme])) ? storedTheme : 'medio';
         applyAppTheme(savedTheme);
         window.addEventListener('DOMContentLoaded', () => applyAppTheme(savedTheme));
 
@@ -1072,7 +1134,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
                 </button>
                 <div id="theme-menu-items" class="hidden absolute top-full right-0 mt-3 w-72 bg-[var(--bg-panel)] border border-[var(--border-color)] rounded-xl shadow-[0_16px_48px_rgba(0,0,0,0.35)] overflow-hidden z-[100] animate-fade-in-up">
                     <div class="p-2 space-y-1">
-                        <?php foreach ($themesData as $themeKey => $themeInfo) { echo themeMenuButton($themeKey, $themeInfo); } ?>
+                        <?php echo themeMenuAutoButton(); foreach ($themesData as $themeKey => $themeInfo) { echo themeMenuButton($themeKey, $themeInfo); } ?>
                     </div>
                 </div>
             </div>
@@ -1286,7 +1348,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
                     <div id="theme-menu-items" class="absolute bottom-[calc(100%+12px)] left-0 w-full bg-[var(--bg-panel)] border border-white/10 rounded-2xl shadow-[0_12px_48px_rgba(0,0,0,0.8)] hidden overflow-hidden z-[50] backdrop-blur-xl animate-fade-in-up">
                         <div class="p-3 px-4 text-[15px] font-bold text-gray-500 uppercase tracking-[0.3em] bg-black/40 border-b border-white/5">Esquemas de Color</div>
                         <div class="max-h-64 overflow-y-auto custom-scroll">
-                            <?php foreach ($themesData as $themeKey => $themeInfo) { echo themeMenuButton($themeKey, $themeInfo); } ?>
+                            <?php echo themeMenuAutoButton(); foreach ($themesData as $themeKey => $themeInfo) { echo themeMenuButton($themeKey, $themeInfo); } ?>
                         </div>
                     </div>
                 </div>

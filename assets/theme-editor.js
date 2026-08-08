@@ -23,7 +23,12 @@ let teGkRequired = false;
 let teBaseThemeKey = null;
 
 function currentThemeKey() {
-    return document.documentElement.getAttribute('data-theme') || localStorage.getItem('app_theme') || 'grafito';
+    const choice = document.documentElement.getAttribute('data-theme-choice') || localStorage.getItem('app_theme') || 'medio';
+    if (choice === 'auto') {
+        const resolved = document.documentElement.getAttribute('data-theme') || 'medio';
+        return (window.themesApp && window.themesApp[resolved]) ? resolved : 'medio';
+    }
+    return choice;
 }
 
 async function openThemeEditor() {

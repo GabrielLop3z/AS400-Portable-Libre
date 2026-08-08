@@ -5,37 +5,25 @@
             "name": "Premium",
             "description": "Tarjeta elegante con acento del tema, ideal para entornos corporativos"
         },
-        "terminal": {
-            "name": "Terminal 5250",
-            "description": "Terminal CRT estilo 5250 (clásico)"
-        },
         "glass": {
             "name": "Vidrio",
-            "description": "Tarjeta glassmorphism sobre gradiente animado"
+            "description": "Tarjeta glassmorphism sobre gradiente animado del tema"
         },
         "split": {
             "name": "Corporativo",
             "description": "Dos paneles: branding a la izquierda, acceso a la derecha"
         },
-        "matrix": {
-            "name": "Matrix",
-            "description": "Lluvia de código estilo hacker con brillo neón"
+        "aurora": {
+            "name": "Aurora",
+            "description": "Gradientes suaves animados con tarjeta de vidrio"
         },
         "minimal": {
             "name": "Minimal",
             "description": "Formulario limpio y centrado sin decoraciones"
         },
-        "soft": {
-            "name": "Soft Claro",
-            "description": "Minimalista y amigable en tonos claros"
-        },
-        "aurora": {
-            "name": "Aurora Suave",
-            "description": "Gradientes pastel animados con tarjeta de vidrio"
-        },
         "corporate": {
             "name": "Corporativo Claro",
-            "description": "Marca a la izquierda y acceso a la derecha, en claro"
+            "description": "Marca a la izquierda y acceso a la derecha"
         }
     }
 }
