@@ -1,5 +1,5 @@
 {
-    "version": "1.8.20",
+    "version": "1.8.21",
     "last_update": "2026-08-07",
-    "changelog": "Rediseño profesional y responsivo: (1) Nuevo tema por defecto 'Grafito' (oscuro elegante con acento índigo) y tema claro corporativo 'Profesional'. (2) Nuevo kit de login 'Premium' por defecto, con el terminal 5250 y los demás kits disponibles en el switcher. (3) Header renovado con botón 'Sincronizar cola' y menú 'Exportar'. (4) Responsividad real: sidebar tipo drawer con backdrop en móvil, tablas con columnas ocultas según el ancho, modales a pantalla completa con scroll. (5) Pulido general: tipografía Inter, focus accesible, chips de estado con acento y paneles equilibrados."
+    "changelog": "Correcciones y más temas: (1) Reparado el acceso a 'Seguridad Gatekeeper / Configuración' que fallaba con la ruta /AS400/ (mostraba 'no existe'). (2) Comentarios & Ideas funcionales: la configuración del token se guarda una sola vez en el servidor (config/feedback.json) y aplica a todos los usuarios; se añadió config/feedback.default.json con el repositorio precargado para que el administrador solo pegue el token. (3) Modales reordenados en capas superiores para que el menú Exportar no se superponga al abrir el editor. (4) Seis temas nuevos profesionales con fuentes limpias y colores amigables: Esmeralda, Océano, Prisma, Plata, Menta y Arena."
 }

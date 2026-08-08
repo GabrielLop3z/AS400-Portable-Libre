@@ -20,8 +20,8 @@ if ($requestLogout) {
 }
 
 $isLoggedIn = isset($_SESSION['as400_session']);
-$assetVer = '1.8.20';
-$appVersion = '1.8.20';
+$assetVer = '1.8.21';
+$appVersion = '1.8.21';
 $appVersionFile = __DIR__ . '/version.json';
 if (file_exists($appVersionFile)) {
     $appVersionData = json_decode(file_get_contents($appVersionFile), true);
@@ -1527,7 +1527,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
     </main>
 
     <!-- Módulo de Estructuración de Datos -->
-    <div id="advanced-editor-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-2xl flex flex-col items-center justify-center z-[100]">
+    <div id="advanced-editor-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-2xl flex flex-col items-center justify-center z-[200]">
         <div class="bg-[var(--bg-panel)] border border-white/10 rounded-[2rem] w-[95vw] h-[95vh] flex flex-col overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.8)] relative glass-panel">
             <div class="p-8 border-b border-white/5 flex justify-between items-center bg-black/40">
                 <div class="flex items-center gap-5">
@@ -1649,7 +1649,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
     </div>
 
     <!-- Column Editor Modal -->
-    <div id="column-editor-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-2xl flex flex-col items-center justify-center z-[150]">
+    <div id="column-editor-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-2xl flex flex-col items-center justify-center z-[250]">
         <div class="bg-[var(--bg-panel)] border border-white/10 rounded-[2.5rem] w-full max-w-2xl overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.6)] glass-panel">
             <div class="p-8 border-b border-white/5 flex justify-between items-center bg-black/40">
                 <div class="flex items-center gap-4">
@@ -1675,7 +1675,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
 
 
     <!-- Change Spool Properties Modal (CHGSPLFA) -->
-    <div id="cp-modal" class="hidden fixed inset-0 z-[150] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div id="cp-modal" class="hidden fixed inset-0 z-[250] flex items-center justify-center bg-black/70 backdrop-blur-sm">
         <div class="w-full max-w-2xl glass-panel border border-white/10 rounded-[2rem] overflow-hidden shadow-[0_32px_128px_rgba(0,0,0,0.8)] animate-scale-in">
             <div class="flex items-center justify-between px-8 py-6 border-b border-white/5 bg-black/40">
                 <div>
@@ -1808,7 +1808,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
 
         </div>
     </div>
-    <div id="control-center-modal" class="hidden fixed inset-0 z-[120] bg-black/60 backdrop-blur-2xl flex items-center justify-center p-4">
+    <div id="control-center-modal" class="hidden fixed inset-0 z-[220] bg-black/60 backdrop-blur-2xl flex items-center justify-center p-4">
         <div class="bg-[var(--bg-panel)] border border-white/10 rounded-[2.5rem] w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-[0_32px_128px_rgba(0,0,0,0.9)] animate-fade-in-up">
             <header class="p-10 border-b border-white/5 flex justify-between items-center bg-black/20">
                 <div class="flex items-center gap-6">
@@ -2723,6 +2723,8 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
         }
 
         function openAdvancedEditor() {
+            closeExportMenu();
+            const favF = document.getElementById('fav-dropdown'); if (favF) favF.classList.add('hidden');
             if (!currentRawLines || currentRawLines.length === 0) {
                 return Swal.fire({
                     icon: 'warning',
@@ -3325,6 +3327,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
 
         // Column Editor Logic
         function openColumnEditor() {
+            closeExportMenu();
             if (!currentParsedData) {
                 return Swal.fire({
                     icon: 'warning',
@@ -4714,9 +4717,23 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
                     warn.classList.add('hidden');
                     ok.classList.remove('hidden');
                     document.getElementById('feedback-target').innerText = `${res.owner}/${res.repo}`;
+                    // Prefill los campos del administrador (una vez) para que solo falte pegar el token
+                    if (res.owner) {
+                        const o = document.getElementById('fb-owner');
+                        if (o && !o.value.trim()) o.value = res.owner;
+                        const r = document.getElementById('fb-repo');
+                        if (r && !r.value.trim()) r.value = res.repo;
+                    }
                 } else {
                     ok.classList.add('hidden');
                     warn.classList.remove('hidden');
+                    // Prefill owner/repo desde la config por defecto del servidor
+                    if (res && res.owner && res.repo) {
+                        const o = document.getElementById('fb-owner');
+                        if (o && !o.value.trim()) o.value = res.owner;
+                        const r = document.getElementById('fb-repo');
+                        if (r && !r.value.trim()) r.value = res.repo;
+                    }
                 }
             } catch (e) { /* silencioso */ }
         }
@@ -5611,7 +5628,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
             if (password) {
                 const form = document.createElement('form');
                 form.method = 'POST';
-                form.action = '/AS400/configure_proxy.php';
+                form.action = 'configure_proxy.php';
                 
                 const input = document.createElement('input');
                 input.type = 'hidden';
@@ -5681,7 +5698,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
     </script>
 
     <!-- Smart Highlighter Modal -->
-    <div id="smart-highlighter-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-2xl flex flex-col items-center justify-center z-[150]">
+    <div id="smart-highlighter-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-2xl flex flex-col items-center justify-center z-[250]">
         <div class="bg-[var(--bg-panel)] border border-white/10 rounded-[2.5rem] w-full max-w-xl overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.6)] glass-panel">
             <div class="p-8 border-b border-white/5 flex justify-between items-center bg-black/40">
                 <div class="flex items-center gap-4">
@@ -5725,7 +5742,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
     </div>
 
     <!-- Dashboard Funcional -->
-    <div id="dashboard-modal" class="hidden fixed inset-0 z-[150] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div id="dashboard-modal" class="hidden fixed inset-0 z-[250] flex items-center justify-center bg-black/70 backdrop-blur-sm">
         <div class="w-full max-w-6xl glass-panel border border-white/10 rounded-[2rem] overflow-hidden shadow-[0_32px_128px_rgba(0,0,0,0.8)] max-h-[92vh] flex flex-col animate-scale-in">
             <div class="flex items-center justify-between px-8 py-6 border-b border-white/5 bg-black/40">
                 <div class="flex items-center gap-4">
@@ -5781,7 +5798,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
     </div>
 
     <!-- Personalizador de Tema (colores + tipografia) -->
-    <div id="theme-editor-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-2xl flex flex-col items-center justify-center z-[160]">
+    <div id="theme-editor-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-2xl flex flex-col items-center justify-center z-[260]">
         <div class="bg-[var(--bg-panel)] border border-[var(--border-color)] rounded-[2.5rem] w-full max-w-2xl overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.6)] glass-panel max-h-[92vh] flex flex-col">
             <div class="p-6 border-b border-[var(--border-color)] flex justify-between items-center bg-black/40">
                 <div class="flex items-center gap-4">
@@ -5830,7 +5847,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
         </div>
     </div>
 
-    <div id="updater-modal" class="hidden fixed inset-0 z-[140] bg-black/60 backdrop-blur-2xl flex items-center justify-center p-4">
+    <div id="updater-modal" class="hidden fixed inset-0 z-[240] bg-black/60 backdrop-blur-2xl flex items-center justify-center p-4">
         <div class="bg-[var(--bg-panel)] border border-white/10 rounded-[2.5rem] w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-[0_32px_128px_rgba(0,0,0,0.9)] animate-fade-in-up">
             <header class="p-8 border-b border-white/5 flex justify-between items-center bg-black/20">
                 <div class="flex items-center gap-5">
@@ -5907,7 +5924,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
     </div>
 
     <!-- Feedback Modal: Comentarios / Ideas / Mejoras a GitHub -->
-    <div id="feedback-modal" class="hidden fixed inset-0 z-[150] bg-black/60 backdrop-blur-2xl flex items-center justify-center p-4">
+    <div id="feedback-modal" class="hidden fixed inset-0 z-[250] bg-black/60 backdrop-blur-2xl flex items-center justify-center p-4">
         <div class="bg-[var(--bg-panel)] border border-white/10 rounded-[2.5rem] w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-[0_32px_128px_rgba(0,0,0,0.9)] animate-fade-in-up">
             <header class="p-8 border-b border-white/5 flex justify-between items-center bg-black/20">
                 <div class="flex items-center gap-5">
@@ -5924,7 +5941,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
             
             <main class="flex-1 overflow-y-auto custom-scroll p-8 space-y-6">
                 <div id="feedback-config-warn" class="hidden bg-yellow-500/10 border border-yellow-500/25 rounded-2xl p-5 text-[14px] text-yellow-200 leading-relaxed">
-                    El envío a GitHub aún no está configurado. Abre la pestaña <b>Configuración</b> para pegar tu token (personal de administrador).
+                    El envío a GitHub aún no está configurado en este equipo. Un <b>administrador</b> debe guardar el token una sola vez (sección <b>Configuración</b>); a partir de ahí <b>todos los usuarios</b> podrán enviar comentarios sin necesidad de pegar nada.
                 </div>
                 <div id="feedback-config-ok" class="hidden bg-green-500/10 border border-green-500/25 rounded-2xl p-5 text-[14px] text-green-300 leading-relaxed">
                     Configuración activa: se enviará a <b id="feedback-target"></b> con tu usuario y la versión de la app.

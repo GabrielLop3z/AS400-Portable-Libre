@@ -170,9 +170,14 @@ function assertSpoolOwnership($job, $sessionUser) {
 }
 
 // --- CONFIGURACION DE COMENTARIOS / FEEDBACK (issues de GitHub) ---
+function defaultFeedbackConfig() {
+    $file = __DIR__ . '/config/feedback.default.json';
+    return (file_exists($file)) ? (json_decode(file_get_contents($file), true) ?: []) : [];
+}
+
 function loadFeedbackConfig() {
     $file = __DIR__ . '/config/feedback.json';
-    return (file_exists($file)) ? (json_decode(file_get_contents($file), true) ?: []) : [];
+    return (file_exists($file)) ? (json_decode(file_get_contents($file), true) ?: []) : defaultFeedbackConfig();
 }
 
 function saveFeedbackConfig($cfg) {
