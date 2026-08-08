@@ -20,8 +20,8 @@ if ($requestLogout) {
 }
 
 $isLoggedIn = isset($_SESSION['as400_session']);
-$assetVer = '1.8.18';
-$appVersion = '1.8.18';
+$assetVer = '1.8.19';
+$appVersion = '1.8.19';
 $appVersionFile = __DIR__ . '/version.json';
 if (file_exists($appVersionFile)) {
     $appVersionData = json_decode(file_get_contents($appVersionFile), true);
@@ -1076,6 +1076,10 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
         <!-- Pie -->
         <div id="login-footer" class="absolute bottom-6 left-0 w-full text-center z-10">
             <p class="text-base text-[var(--text-muted)] tracking-[0.2em] uppercase opacity-70">Spool <span class="font-bold text-[var(--accent)]">v<?= htmlspecialchars($appVersion) ?></span> &middot; GLR</p>
+            <button onclick="openFeedback()" class="mt-3 inline-flex items-center gap-2 text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors text-sm font-bold uppercase tracking-widest" title="Envía tus ideas, sugerencias o reportes para futuras mejoras">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                Comentarios &amp; Ideas
+            </button>
         </div>
     </div>
 <?php else: ?>
@@ -1245,6 +1249,10 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                     Actualizar
                 </button>
+                <button onclick="openFeedback()" class="mt-2 w-full h-11 flex items-center justify-center gap-2 text-[15px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 rounded-xl hover:bg-indigo-500 hover:text-white transition-all premium-hover uppercase tracking-widest" title="Envía tus ideas, comentarios o reportes para futuras mejoras">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                    Comentarios
+                </button>
             </div>
             
             <div class="pt-4 space-y-3">
@@ -1277,7 +1285,9 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
                     <svg class="w-4 h-4 text-gray-500 group-focus-within:text-accent mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                     <?php 
                         $currentUserId = $_SESSION['as400_session']['user_id'] ?? '';
+                        $isPrivilegedUser = (strpos(strtoupper($currentUserId), 'TID') === 0 || strpos(strtoupper($currentUserId), 'TIO') === 0);
                     ?>
+                    <?php if ($isPrivilegedUser): ?>
                     <input type="text" id="target-user-search" placeholder="Consultar Usuario..." 
                            class="bg-transparent border-none outline-none text-[15px] text-white w-full placeholder-gray-600 font-medium uppercase" 
                            value="<?= htmlspecialchars($currentUserId) ?>"
@@ -1296,6 +1306,13 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
                         </div>
                         <div id="fav-dropdown-list" class="max-h-60 overflow-y-auto custom-scroll"></div>
                     </div>
+                    <?php else: ?>
+                    <div class="flex items-center gap-2 w-full px-1" title="Solo puedes consultar tus propios spools">
+                        <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        <span class="text-[13px] font-bold uppercase tracking-widest text-gray-400">Spools de:</span>
+                        <span class="text-[15px] text-accent font-bold uppercase"><?= htmlspecialchars($currentUserId) ?></span>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
             
@@ -1659,9 +1676,6 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
              <button onclick="bulkSpoolAction('release')" class="px-4 py-3 bg-green-500/10 border border-green-500/30 rounded-xl text-[15px] font-bold text-green-400 hover:bg-green-500 hover:text-white transition-all flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> SOLTAR
              </button>
-             <button onclick="bulkSpoolAction('delete')" class="px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-xl text-[15px] font-bold text-red-400 hover:bg-red-500 hover:text-white transition-all flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> ELIMINAR
-             </button>
              <button onclick="clearBulk()" class="px-6 py-3 text-[15px] font-bold text-gray-500 hover:text-white transition-all uppercase tracking-widest">CANCELAR</button>
         </div>
     </div>
@@ -1714,9 +1728,6 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
             </button>
             <button id="ctx-act-release" onclick="handleContextAction('release')" class="w-full text-left px-4 py-3 text-[15px] font-bold hover:bg-green-500/10 hover:text-green-400 rounded-xl flex items-center gap-3 transition-all">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Soltar (Release)
-            </button>
-            <button onclick="handleContextAction('delete')" class="w-full text-left px-4 py-3 text-[15px] font-bold hover:bg-red-500/10 hover:text-red-400 rounded-xl flex items-center gap-3 transition-all">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> Eliminar
             </button>
 
         </div>
@@ -4043,9 +4054,6 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
                     await handleRowClick(contextSpool); 
                     exportData('txt'); 
                     break;
-                case 'delete':
-                    confirmSpoolAction(contextSpool, 'delete');
-                    break;
                 case 'hold':
                     confirmSpoolAction(contextSpool, 'hold');
                     break;
@@ -4106,9 +4114,8 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
             }
         }
 
-        // ===== Gestión de spools (DLTSPLF / HLDSPLF / RLSSPLF / CHGSPLFA) =====
+        // ===== Gestión de spools (HLDSPLF / RLSSPLF / CHGSPLFA) =====
         const SPOOL_ACTION_LABELS = {
-            delete:  { title: '¿Eliminar spool?',     running: 'Eliminando spool...',      ok: 'Spool eliminado' },
             hold:    { title: '¿Mantener spool?',     running: 'Manteniendo spool...',     ok: 'Spool en mantenimiento (HLD)' },
             release: { title: '¿Soltar spool?',       running: 'Soltando spool...',        ok: 'Spool liberado (RLS)' },
             reprint: { title: '¿Reimprimir spool?',   running: 'Reimprimiendo spool...',   ok: 'Spool listo para reimprimir' },
@@ -4138,10 +4145,10 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
                         <div class="flex justify-between"><span class="uppercase tracking-widest text-gray-500">Job</span><span class="text-white font-bold">${sp.job}</span></div>
                         <div class="flex justify-between"><span class="uppercase tracking-widest text-gray-500">Nº</span><span class="text-white font-bold">${sp.splnbr}</span></div>
                        </div>`,
-                icon: action === 'delete' ? 'warning' : 'question',
+                icon: 'question',
                 showCancelButton: true,
-                confirmButtonText: action === 'delete' ? 'SÍ, ELIMINAR' : 'CONFIRMAR',
-                confirmButtonColor: action === 'delete' ? '#ef4444' : 'var(--accent)',
+                confirmButtonText: 'CONFIRMAR',
+                confirmButtonColor: 'var(--accent)',
                 cancelButtonText: 'CANCELAR',
                 background: 'var(--bg-panel)', color: 'var(--text-main)'
             });
@@ -4212,15 +4219,6 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
             const list = window.lastSpoolList || [];
             const targets = list.filter(s => ids.includes(`${s.name}_${s.job}_${s.splnbr}`));
             if (targets.length === 0) return;
-            if (action === 'delete') {
-                const confirm = await Swal.fire({
-                    title: `¿Eliminar ${targets.length} spool(s)?`, icon: 'warning',
-                    text: 'Esta acción no se puede deshacer.',
-                    showCancelButton: true, confirmButtonText: 'SÍ, ELIMINAR', confirmButtonColor: '#ef4444',
-                    cancelButtonText: 'CANCELAR', background: 'var(--bg-panel)', color: 'var(--text-main)'
-                });
-                if (!confirm.isConfirmed) return;
-            }
             const meta = SPOOL_ACTION_LABELS[action];
             Swal.fire({ title: `Procesando ${targets.length} spool(s)...`, allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: 'var(--bg-panel)', color: 'var(--text-main)' });
             let ok = 0, failed = 0, firstError = '';
@@ -4610,6 +4608,99 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
 
         // --- SISTEMA DE ACTUALIZACION INTELIGENTE ---
         let updaterAutoCheck = true;
+
+        // --- COMENTARIOS / IDEAS (feedback a GitHub) ---
+        function openFeedback() {
+            document.getElementById('feedback-modal').classList.remove('hidden');
+            document.getElementById('feedback-modal').classList.add('animate-fade-in-up');
+            loadFeedbackStatus();
+        }
+
+        function closeFeedback() {
+            document.getElementById('feedback-modal').classList.add('hidden');
+        }
+
+        async function feedbackFetch(action, extra = {}) {
+            const res = await fetch('process.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(Object.assign({ action }, extra))
+            });
+            return await res.json();
+        }
+
+        async function loadFeedbackStatus() {
+            try {
+                const res = await feedbackFetch('feedback_status');
+                const warn = document.getElementById('feedback-config-warn');
+                const ok = document.getElementById('feedback-config-ok');
+                if (res && res.success && res.configured) {
+                    warn.classList.add('hidden');
+                    ok.classList.remove('hidden');
+                    document.getElementById('feedback-target').innerText = `${res.owner}/${res.repo}`;
+                } else {
+                    ok.classList.add('hidden');
+                    warn.classList.remove('hidden');
+                }
+            } catch (e) { /* silencioso */ }
+        }
+
+        async function saveFeedbackConfig() {
+            const owner = document.getElementById('fb-owner').value.trim();
+            const repo = document.getElementById('fb-repo').value.trim();
+            const token = document.getElementById('fb-token').value.trim();
+            if (!owner || !repo || !token) {
+                Swal.fire({ icon: 'warning', title: 'Campos incompletos', text: 'Completa Owner, Repo y Token.', background: 'var(--bg-panel)', color: 'var(--text-main)' });
+                return;
+            }
+            let payload = { owner, repo, token };
+            const ck = await feedbackFetch('check_gatekeeper');
+            if (ck && ck.required) {
+                const pwd = await Swal.fire({ title: 'Acceso de Administrador', text: 'Ingrese la contraseña del Gatekeeper:', input: 'password', inputAttributes: { autocapitalize: 'off' }, showCancelButton: true, confirmButtonText: 'AUTORIZAR', background: 'var(--bg-panel)', color: 'var(--text-main)' });
+                if (!pwd.isConfirmed || !pwd.value) return;
+                payload.password = pwd.value;
+            }
+            Swal.fire({ title: 'Guardando configuración...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: 'var(--bg-panel)', color: 'var(--text-main)' });
+            const res = await feedbackFetch('save_feedback_config', payload);
+            Swal.close();
+            if (res && res.success) {
+                document.getElementById('fb-token').value = '';
+                Swal.fire({ icon: 'success', title: 'Configuración guardada', text: 'El token quedó almacenado en config/feedback.json.', timer: 1800, showConfirmButton: false, background: 'var(--bg-panel)', color: 'var(--text-main)' });
+                loadFeedbackStatus();
+            } else {
+                Swal.fire({ icon: 'error', title: 'Error', text: (res && res.message) || 'No se pudo guardar la configuración', background: 'var(--bg-panel)', color: 'var(--text-main)' });
+            }
+        }
+
+        async function submitFeedback() {
+            const category = document.getElementById('fb-category').value;
+            const title = document.getElementById('fb-title').value.trim();
+            const message = document.getElementById('fb-message').value.trim();
+            if (!title || !message) {
+                Swal.fire({ icon: 'warning', title: 'Campos incompletos', text: 'El título y el mensaje son obligatorios.', background: 'var(--bg-panel)', color: 'var(--text-main)' });
+                return;
+            }
+            Swal.fire({ title: 'Enviando a GitHub...', allowOutsideClick: false, didOpen: () => Swal.showLoading(), background: 'var(--bg-panel)', color: 'var(--text-main)' });
+            const res = await feedbackFetch('submit_feedback', { category, title, message });
+            Swal.close();
+            if (res && res.success) {
+                document.getElementById('fb-title').value = '';
+                document.getElementById('fb-message').value = '';
+                Swal.fire({
+                    icon: 'success', title: '¡Gracias! Tu comentario fue enviado',
+                    html: res.issue_url ? `<a href="${res.issue_url}" target="_blank" rel="noopener" style="color:var(--accent);font-weight:bold;text-decoration:underline">Ver el issue en GitHub</a>` : '',
+                    background: 'var(--bg-panel)', color: 'var(--text-main)'
+                });
+            } else {
+                Swal.fire({ icon: 'error', title: 'No se pudo enviar', text: (res && res.message) || 'Ocurrió un error', background: 'var(--bg-panel)', color: 'var(--text-main)' });
+            }
+        }
+
+        document.addEventListener('input', function (e) {
+            if (e.target && e.target.id === 'fb-message') {
+                document.getElementById('fb-count').innerText = e.target.value.length + ' / 10000';
+            }
+        });
 
         function openUpdater() {
             document.getElementById('updater-modal').classList.remove('hidden');
@@ -5735,6 +5826,83 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
                     <button onclick="runUpdateCheck()" class="px-5 py-3 rounded-[1.5rem] text-[15px] font-bold bg-white/10 text-white border border-white/15 hover:bg-white/20 transition-all uppercase tracking-widest">BUSCAR</button>
                     <button id="upd-apply-btn" onclick="runApplyUpdate()" class="px-6 py-3 rounded-[1.5rem] text-[15px] font-black bg-accent text-black hover:bg-white transition-all shadow-accent uppercase tracking-widest" style="opacity:0.35;pointer-events:none">ACTUALIZAR</button>
                 </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Feedback Modal: Comentarios / Ideas / Mejoras a GitHub -->
+    <div id="feedback-modal" class="hidden fixed inset-0 z-[150] bg-black/60 backdrop-blur-2xl flex items-center justify-center p-4">
+        <div class="bg-[var(--bg-panel)] border border-white/10 rounded-[2.5rem] w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-[0_32px_128px_rgba(0,0,0,0.9)] animate-fade-in-up">
+            <header class="p-8 border-b border-white/5 flex justify-between items-center bg-black/20">
+                <div class="flex items-center gap-5">
+                    <div class="w-14 h-14 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl flex items-center justify-center">
+                        <svg class="w-7 h-7 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-white tracking-tighter">COMENTARIOS &amp; IDEAS</h2>
+                        <p class="text-gray-500 font-bold text-[13px] tracking-[0.3em] uppercase mt-1">Se envía a GitHub como issue para futuras mejoras</p>
+                    </div>
+                </div>
+                <button onclick="closeFeedback()" class="p-3 bg-white/5 border border-white/10 rounded-2xl text-gray-400 hover:text-white transition-all premium-hover">&times;</button>
+            </header>
+            
+            <main class="flex-1 overflow-y-auto custom-scroll p-8 space-y-6">
+                <div id="feedback-config-warn" class="hidden bg-yellow-500/10 border border-yellow-500/25 rounded-2xl p-5 text-[14px] text-yellow-200 leading-relaxed">
+                    El envío a GitHub aún no está configurado. Abre la pestaña <b>Configuración</b> para pegar tu token (personal de administrador).
+                </div>
+                <div id="feedback-config-ok" class="hidden bg-green-500/10 border border-green-500/25 rounded-2xl p-5 text-[14px] text-green-300 leading-relaxed">
+                    Configuración activa: se enviará a <b id="feedback-target"></b> con tu usuario y la versión de la app.
+                </div>
+
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-[12px] font-bold text-gray-500 uppercase tracking-widest">Categoría</label>
+                            <select id="fb-category" class="w-full bg-black/40 border border-white/10 text-[15px] font-bold text-white px-4 py-3 rounded-xl outline-none focus:border-indigo-400/40">
+                                <option value="idea">Idea</option>
+                                <option value="mejora">Mejora</option>
+                                <option value="error">Error / Bug</option>
+                                <option value="sugerencia">Sugerencia</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[12px] font-bold text-gray-500 uppercase tracking-widest">Título *</label>
+                            <input id="fb-title" maxlength="200" class="w-full bg-black/40 border border-white/10 text-[15px] font-bold text-white px-4 py-3 rounded-xl outline-none focus:border-indigo-400/40" placeholder="Resumen corto de tu idea">
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[12px] font-bold text-gray-500 uppercase tracking-widest">Mensaje *</label>
+                        <textarea id="fb-message" rows="6" maxlength="10000" class="w-full bg-black/40 border border-white/10 text-[15px] font-bold text-white px-4 py-3 rounded-xl outline-none focus:border-indigo-400/40 resize-none" placeholder="Describe tu comentario, idea o el problema encontrado..."></textarea>
+                        <p class="text-[11px] text-gray-600 font-bold text-right" id="fb-count">0 / 10000</p>
+                    </div>
+                </div>
+
+                <div class="border-t border-white/5 pt-6">
+                    <p class="text-[12px] font-bold text-gray-500 uppercase tracking-widest mb-3">Configuración (administrador)</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-[12px] font-bold text-gray-500 uppercase tracking-widest">Owner (usuario GitHub)</label>
+                            <input id="fb-owner" class="w-full bg-black/40 border border-white/10 text-[15px] font-bold text-white px-4 py-3 rounded-xl outline-none focus:border-indigo-400/40" placeholder="GabrielLop3z">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[12px] font-bold text-gray-500 uppercase tracking-widest">Repo</label>
+                            <input id="fb-repo" class="w-full bg-black/40 border border-white/10 text-[15px] font-bold text-white px-4 py-3 rounded-xl outline-none focus:border-indigo-400/40" placeholder="AS400-Portable-Libre">
+                        </div>
+                    </div>
+                    <div class="space-y-2 mt-4">
+                        <label class="text-[12px] font-bold text-gray-500 uppercase tracking-widest">Token (Personal Access Token, scope public_repo)</label>
+                        <div class="flex gap-2">
+                            <input id="fb-token" type="password" autocomplete="off" class="flex-1 bg-black/40 border border-white/10 text-[15px] font-bold text-white px-4 py-3 rounded-xl outline-none focus:border-indigo-400/40" placeholder="ghp_...">
+                            <button onclick="saveFeedbackConfig()" class="px-5 py-3 rounded-xl text-[15px] font-bold bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500 hover:text-white transition-all uppercase tracking-widest">GUARDAR</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            
+            <footer class="p-6 border-t border-white/5 flex flex-wrap justify-between gap-3 bg-black/40">
+                <button onclick="closeFeedback()" class="px-5 py-3 rounded-[1.5rem] text-[15px] font-bold bg-white/5 text-white border border-white/10 hover:bg-white/10 transition-all uppercase tracking-widest">CERRAR</button>
+                <button id="fb-submit-btn" onclick="submitFeedback()" class="px-6 py-3 rounded-[1.5rem] text-[15px] font-black bg-indigo-500 text-black hover:bg-white transition-all uppercase tracking-widest">ENVIAR A GITHUB</button>
             </footer>
         </div>
     </div>

@@ -22,6 +22,7 @@
 /config/themes.json
 /config/templates.json
 /config/updater.json
+/config/feedback.json
 
 # --- Logs y temporales ---
 /trace.log

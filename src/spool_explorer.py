@@ -188,9 +188,7 @@ def manage_spool(host, user, password, sp_action, file_name, job, number, params
         spec = "FILE(" + str(file_name) + ") JOB(" + str(job) + ") SPLNBR(" + str(number) + ")"
 
         commands = []
-        if sp_action == "delete":
-            commands.append("DLTSPLF " + spec)
-        elif sp_action == "hold":
+        if sp_action == "hold":
             commands.append("HLDSPLF " + spec)
         elif sp_action == "release":
             commands.append("RLSSPLF " + spec)

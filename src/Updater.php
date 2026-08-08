@@ -20,6 +20,7 @@ class Updater {
     private $protectedFiles = [
         'config/proxy.dat', 'config/gatekeeper.json', 'config/themes.json',
         'config/templates.json', 'config/updater.json', 'config/updater_state.json',
+        'config/feedback.json',
         'trace.log', 'debug_raw.txt', 'server_logs.txt', 'VC_redist.x64.exe'
     ];
 

@@ -13,7 +13,7 @@ set_time_limit(300);
 $input = json_decode(file_get_contents('php://input'), true);
 $action = $_POST['action'] ?? $input['action'] ?? null;
 
-if (in_array($action, ['list_remote', 'fetch_remote', 'save_template', 'load_templates', 'delete_template', 'rename_template', 'save_theme', 'reset_theme', 'spool_action', 'updater_status', 'check_update', 'apply_update', 'rollback_update', 'save_updater_config'], true)) {
+if (in_array($action, ['list_remote', 'fetch_remote', 'get_user_info', 'export', 'save_template', 'load_templates', 'delete_template', 'rename_template', 'save_theme', 'reset_theme', 'spool_action', 'updater_status', 'check_update', 'apply_update', 'rollback_update', 'save_updater_config', 'submit_feedback', 'feedback_status', 'save_feedback_config'], true)) {
     session_start();
 }
 
@@ -144,10 +144,83 @@ function refineError($msg) {
     return $msg;
 }
 
+// Usuarios con privilegio de ver TODOS los spools (su nombre empieza por TID o TIO)
+function isPrivilegedSpoolUser($userId) {
+    $u = strtoupper((string)$userId);
+    return strpos($u, 'TID') === 0 || strpos($u, 'TIO') === 0;
+}
+
+// Extrae el usuario propietario de un job con formato "numero/usuario/nombre"
+function jobOwner($job) {
+    $parts = explode('/', (string)$job);
+    return isset($parts[1]) ? trim($parts[1]) : '';
+}
+
+// Valida que el job pertenezca al usuario de la sesión (salvo usuarios privilegiados TID/TIO)
+function assertSpoolOwnership($job, $sessionUser) {
+    if (isPrivilegedSpoolUser($sessionUser)) return;
+    $job = trim((string)$job);
+    if ($job === '' || $job === '*') {
+        throw new Exception('No tienes permiso para acceder a este spool.');
+    }
+    $owner = strtoupper(jobOwner($job));
+    if ($owner === '' || $owner !== strtoupper((string)$sessionUser)) {
+        throw new Exception('No tienes permiso para acceder a este spool.');
+    }
+}
+
+// --- CONFIGURACION DE COMENTARIOS / FEEDBACK (issues de GitHub) ---
+function loadFeedbackConfig() {
+    $file = __DIR__ . '/config/feedback.json';
+    return (file_exists($file)) ? (json_decode(file_get_contents($file), true) ?: []) : [];
+}
+
+function saveFeedbackConfig($cfg) {
+    $file = __DIR__ . '/config/feedback.json';
+    @mkdir(dirname($file), 0777, true);
+    return file_put_contents($file, json_encode($cfg, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) !== false;
+}
+
+function feedbackGitHubRequest($url, $token, $payload) {
+    if (!function_exists('curl_init')) {
+        throw new Exception('La extensión cURL no está disponible en PHP.');
+    }
+    $ch = curl_init($url);
+    $caFile = __DIR__ . '/cacert.pem';
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXREDIRS => 6,
+        CURLOPT_CONNECTTIMEOUT => 20,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_USERAGENT => 'AS400-Portable-Libre-Feedback',
+        CURLOPT_HTTPHEADER => [
+            'Authorization: Bearer ' . $token,
+            'Accept: application/vnd.github+json',
+            'User-Agent: AS400-Portable-Libre-Feedback'
+        ],
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE)
+    ]);
+    if (file_exists($caFile)) {
+        curl_setopt($ch, CURLOPT_CAINFO, $caFile);
+    } else {
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    }
+    $body = curl_exec($ch);
+    $err = curl_error($ch);
+    $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    if ($body === false) {
+        throw new Exception('Fallo de red al contactar GitHub: ' . $err);
+    }
+    return ['code' => $code, 'body' => $body];
+}
+
 try {
     $session = $_SESSION['as400_session'] ?? null;
 
-    if ($action === 'list_remote' || $action === 'fetch_remote' || $action === 'get_user_info') {
+    if ($action === 'list_remote' || $action === 'fetch_remote' || $action === 'get_user_info' || $action === 'export') {
         if (!$session || empty($session['user_id']) || empty($session['password'])) {
             throw new Exception('Sesión no válida o campos vacíos. Por favor, inicie sesión de nuevo.');
         }
@@ -242,9 +315,14 @@ try {
         $connUser = (USE_PROXY && strtoupper($session['user_id']) !== strtoupper(PROXY_USER)) ? PROXY_USER : $session['user_id'];
         $connPass = (USE_PROXY && strtoupper($session['user_id']) !== strtoupper(PROXY_USER)) ? PROXY_PASS : $session['password'];
         
-        $targetUser = trim($input['target_user'] ?? $_POST['target_user'] ?? '');
-        if (empty($targetUser)) {
+        if (!isPrivilegedSpoolUser($session['user_id'])) {
+            // Los usuarios regulares solo pueden listar SUS propios spools.
             $targetUser = $session['user_id'];
+        } else {
+            $targetUser = trim($input['target_user'] ?? $_POST['target_user'] ?? '');
+            if (empty($targetUser)) {
+                $targetUser = $session['user_id'];
+            }
         }
         $pageLimit  = max(1, intval($input['limit']  ?? 200));
         $pageOffset = max(0, intval($input['offset'] ?? 0));
@@ -281,6 +359,8 @@ try {
         $file = $_POST['file'] ?? $input['file'] ?? 'QPRINT';
         $job = $_POST['job'] ?? $input['job'] ?? '*';
         $number = $_POST['number'] ?? $input['number'] ?? '*LAST';
+
+        assertSpoolOwnership($job, $session['user_id']);
 
         $isWin7 = (strpos(php_uname('r'), '6.1') !== false);
         $pythonBin = 'python';
@@ -331,7 +411,11 @@ try {
         $file = trim($input['file'] ?? $_POST['file'] ?? '');
         $job  = trim($input['job'] ?? $_POST['job'] ?? '*');
         $number = trim($input['number'] ?? $_POST['number'] ?? '*LAST');
-        if (!in_array($spAction, ['delete', 'hold', 'release', 'reprint', 'change'], true)) {
+        if ($spAction === 'delete') {
+            echo json_encode(['success' => false, 'message' => 'La eliminación de spools fue deshabilitada.']);
+            exit;
+        }
+        if (!in_array($spAction, ['hold', 'release', 'reprint', 'change'], true)) {
             echo json_encode(['success' => false, 'message' => 'Acción de spool inválida.']);
             exit;
         }
@@ -339,6 +423,7 @@ try {
             echo json_encode(['success' => false, 'message' => 'Faltan datos del spool.']);
             exit;
         }
+        assertSpoolOwnership($job, $session['user_id']);
         $params = $input['params'] ?? $_POST['params'] ?? [];
         if (!is_array($params)) $params = [];
 
@@ -505,9 +590,16 @@ try {
         }
         exit;
 
+    } elseif ($action === 'export') {
         $type = $input['type'] ?? 'excel';
         $data = $input['data'] ?? null;
         if (!$data) throw new Exception('No data to export.');
+        // Normalizar filas: si una fila llega como string, la envolvemos en array para evitar fatales
+        if (isset($data['data']) && is_array($data['data'])) {
+            $data['data'] = array_map(function ($row) {
+                return is_array($row) ? $row : [$row];
+            }, $data['data']);
+        }
         
         $exportDir = __DIR__ . '/exports';
         if (!is_dir($exportDir)) mkdir($exportDir, 0777, true);
@@ -652,6 +744,88 @@ try {
             exit;
         }
         echo json_encode(['success' => true]);
+        exit;
+    } elseif ($action === 'feedback_status') {
+        $cfg = loadFeedbackConfig();
+        echo json_encode([
+            'success' => true,
+            'configured' => !empty($cfg['token']) && !empty($cfg['owner']) && !empty($cfg['repo']),
+            'owner' => $cfg['owner'] ?? '',
+            'repo' => $cfg['repo'] ?? ''
+        ]);
+        exit;
+    } elseif ($action === 'save_feedback_config') {
+        if (empty($session)) {
+            throw new Exception('Sesión no válida. Inicie sesión de nuevo.');
+        }
+        if (!empty($gatekeeperHash)) {
+            $apwd = $input['password'] ?? $_POST['password'] ?? null;
+            if (!$apwd || !password_verify($apwd, $gatekeeperHash)) {
+                echo json_encode(['success' => false, 'message' => 'Acceso de administrador inválido.']);
+                exit;
+            }
+        }
+        $owner = trim((string)($input['owner'] ?? $_POST['owner'] ?? ''));
+        $repo = trim((string)($input['repo'] ?? $_POST['repo'] ?? ''));
+        $token = trim((string)($input['token'] ?? $_POST['token'] ?? ''));
+        if (!preg_match('/^[A-Za-z0-9_.\-]+$/', $owner) || !preg_match('/^[A-Za-z0-9_.\-]+$/', $repo)) {
+            echo json_encode(['success' => false, 'message' => 'Owner o repo inválidos.']);
+            exit;
+        }
+        if (strlen($token) < 10 || !preg_match('/^[A-Za-z0-9_\-]+$/', $token)) {
+            echo json_encode(['success' => false, 'message' => 'El token de GitHub no es válido.']);
+            exit;
+        }
+        if (!saveFeedbackConfig(['owner' => $owner, 'repo' => $repo, 'token' => $token])) {
+            echo json_encode(['success' => false, 'message' => 'No se pudo escribir config/feedback.json. Verifique permisos.']);
+            exit;
+        }
+        echo json_encode(['success' => true]);
+        exit;
+    } elseif ($action === 'submit_feedback') {
+        $category = trim((string)($input['category'] ?? $_POST['category'] ?? 'idea'));
+        $title = trim((string)($input['title'] ?? $_POST['title'] ?? ''));
+        $message = trim((string)($input['message'] ?? $_POST['message'] ?? ''));
+        $allowed = ['idea', 'error', 'mejora', 'sugerencia', 'otro'];
+        if (!in_array($category, $allowed, true)) $category = 'otro';
+        if ($title === '' || mb_strlen($title) > 200) {
+            throw new Exception('El título es obligatorio (máx. 200 caracteres).');
+        }
+        if ($message === '' || mb_strlen($message) > 10000) {
+            throw new Exception('El mensaje es obligatorio (máx. 10.000 caracteres).');
+        }
+        $cfg = loadFeedbackConfig();
+        if (empty($cfg['token']) || empty($cfg['owner']) || empty($cfg['repo'])) {
+            throw new Exception('El envío a GitHub no está configurado. Configure un token en Comentarios.');
+        }
+        $appVersion = '1.8.19';
+        $verFile = __DIR__ . '/version.json';
+        if (file_exists($verFile)) {
+            $vd = json_decode(file_get_contents($verFile), true);
+            if (!empty($vd['version'])) $appVersion = $vd['version'];
+        }
+        $issueUser = strtoupper(trim((string)($session['user_id'] ?? '')));
+        $issueBody = "**Usuario AS/400:** " . ($issueUser !== '' ? $issueUser : 'Anónimo') . "\n"
+            . "**Versión de la aplicación:** " . $appVersion . "\n"
+            . "**Categoría:** " . strtoupper($category) . "\n"
+            . "**Fecha:** " . date('Y-m-d H:i:s') . "\n\n---\n\n" . $message;
+        $labels = ['feedback'];
+        $res = feedbackGitHubRequest(
+            'https://api.github.com/repos/' . rawurlencode($cfg['owner']) . '/' . rawurlencode($cfg['repo']) . '/issues',
+            $cfg['token'],
+            [
+                'title' => '[' . strtoupper($category) . '] ' . $title,
+                'body' => $issueBody,
+                'labels' => $labels
+            ]
+        );
+        $decoded = json_decode($res['body'], true);
+        if ($res['code'] >= 400) {
+            $reason = $decoded['message'] ?? 'HTTP ' . $res['code'];
+            throw new Exception('GitHub rechazó el envío: ' . $reason);
+        }
+        $issueUrl = $decoded['html_url'] ?? '';
+        echo json_encode(['success' => true, 'issue_url' => $issueUrl]);
         exit;
     } else {
         throw new Exception('Invalid action: ' . $action);

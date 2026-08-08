@@ -1,5 +1,5 @@
 {
-    "version": "1.8.18",
+    "version": "1.8.19",
     "last_update": "2026-08-07",
-    "changelog": "El actualizador queda pre-configurado de fábrica: si no existe config/updater.json, se usa config/updater.default.json (repo GabrielLop3z/AS400-Portable-Libre, rama main). Ya no aparece 'repositorio no configurado' en instalaciones nuevas."
+    "changelog": "Seguridad y feedback: (1) Cada usuario solo ve, visualiza, edita y descarga SUS propios spools; los usuarios cuyo nombre empieza por TID o TIO conservan acceso a todos. (2) Se eliminó la opción de eliminar spools (DLTSPLF). (3) Nueva sección 'Comentarios & Ideas' que envía sugerencias/errores a GitHub como issue para futuras mejoras (configurable con token de administrador). (4) Reparada la exportación Excel/PDF/Word."
 }
